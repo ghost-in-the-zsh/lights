@@ -41,9 +41,9 @@ class Light(db.Model):
     )
 
     def __repr__(self):
-        return "<{}: id={} name='{}', state='{}'>".format(
+        return "<{}: id={} name='{}', is_powered_on={}>".format(
             self.__class__.__name__,
             self.id,
             self.name,
-            'On' if self.is_powered_on else 'Off'
+            str(self.is_powered_on)
         )
