@@ -8,6 +8,11 @@ from typing import Callable, Dict, Text
 from sqlalchemy.exc import IntegrityError
 
 from lights import create_app
+from lights.settings import (
+    MIN_NAME_LENGTH,
+    MAX_NAME_LENGTH
+)
+from lights.common.errors import ValidationError
 from lights.models import db
 from lights.models.light import Light
 
@@ -67,6 +72,28 @@ class TestLightModel(object):
         with pytest.raises(IntegrityError):
             self.session.add(Light(name='Light-00'))
             self.session.commit()
+
+    @with_app_context
+    def test_light_name_below_min_length_raises_validation_error(self):
+        light = Light.query.filter_by(id=1).one()
+        with pytest.raises(ValidationError):
+            light.name = 'a' * (MIN_NAME_LENGTH-1)
+
+    @with_app_context
+    def test_light_name_at_min_length_passes_validation(self):
+        light = Light.query.filter_by(id=1).one()
+        light.name = 'a' * MIN_NAME_LENGTH
+
+    @with_app_context
+    def test_light_name_above_max_length_raises_validation_error(self):
+        light = Light.query.filter_by(id=1).one()
+        with pytest.raises(ValidationError):
+            light.name = 'a' * (MAX_NAME_LENGTH+1)
+
+    @with_app_context
+    def test_light_name_at_max_length_passes_validation(self):
+        light = Light.query.filter_by(id=1).one()
+        light.name = 'a' * MAX_NAME_LENGTH
 
     @with_app_context
     def test_light_repr_format_matches(self):
