@@ -41,7 +41,7 @@ class Light(db.Model):
     )
 
     def __repr__(self):
-        return "<{}: id={} name='{}', is_powered_on={}>".format(
+        return "<{}: id={} name='{}' is_powered_on={}>".format(
             self.__class__.__name__,
             self.id,
             self.name,

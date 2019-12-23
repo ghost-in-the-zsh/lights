@@ -67,3 +67,11 @@ class TestLightModel(object):
         with pytest.raises(IntegrityError):
             self.session.add(Light(name='Light-00'))
             self.session.commit()
+
+    @with_app_context
+    def test_light_repr_format_matches(self):
+        light = Light.query.filter_by(id=1).one()
+        actual = repr(light)
+        expected = f"<Light: id={light.id} name='{light.name}' is_powered_on={light.is_powered_on}>"
+
+        assert expected == actual
