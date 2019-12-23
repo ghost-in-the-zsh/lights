@@ -7,14 +7,14 @@ from typing import Callable, Dict, Text
 
 from sqlalchemy.exc import IntegrityError
 
-from lights import create_app
-from lights.settings import (
+from app import create_app
+from app.settings import (
     MIN_NAME_LENGTH,
     MAX_NAME_LENGTH
 )
-from lights.common.errors import ValidationError
-from lights.models import db
-from lights.models.light import Light
+from app.common.errors import ValidationError
+from app.models import db
+from app.models.light import Light
 
 from tests.utils import (
     setup_database,

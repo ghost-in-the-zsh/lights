@@ -4,7 +4,7 @@ The configuration classes describe the properties that should be applied
 to Flask application instances, based on their execution environment.
 '''
 
-from lights.settings import (
+from app.settings import (
     VERSION,
     INSTANCE_DIR,
     DATABASE_CONFIG
@@ -51,7 +51,7 @@ class TestingConfig(ProductionConfig):
 
 
 app_configs = {
-    'development': 'lights.config.DevelopmentConfig',
-    'testing'    : 'lights.config.TestingConfig',
-    'production' : 'lights.config.ProductionConfig',
+    'development': 'app.config.DevelopmentConfig',
+    'testing'    : 'app.config.TestingConfig',
+    'production' : 'app.config.ProductionConfig',
 }

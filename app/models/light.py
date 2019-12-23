@@ -15,12 +15,12 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import validates
 
-from lights.settings import (
+from app.settings import (
     MIN_NAME_LENGTH,
     MAX_NAME_LENGTH
 )
-from lights.models import db
-from lights.common.validators import (
+from app.models import db
+from app.common.validators import (
     MinLengthValidator,
     MaxLengthValidator
 )

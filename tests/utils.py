@@ -21,8 +21,8 @@ from flask import (
     Flask
 )
 
-from lights.models import db
-from lights.models.light import Light
+from app.models import db
+from app.models.light import Light
 
 
 def setup_database(app: Flask) -> None:

@@ -1,7 +1,7 @@
 import pytest
 
-from lights.common.errors import ValidationError
-from lights.common.validators import (
+from app.common.errors import ValidationError
+from app.common.validators import (
     MinLengthValidator,
     MaxLengthValidator
 )

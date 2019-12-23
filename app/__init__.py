@@ -14,9 +14,9 @@ from flask import (
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 
-from lights.settings import INSTANCE_DIR
-from lights.config import app_configs
-from lights.models import db as sqla
+from app.settings import INSTANCE_DIR
+from app.config import app_configs
+from app.models import db as sqla
 
 
 def create_app(config_name: Text) -> Flask:

@@ -7,7 +7,7 @@ basic rules before we accept their data and store it in the database.
 from abc import ABCMeta
 from typing import Iterable, Any, Text
 
-from lights.common.errors import ValidationError
+from app.common.errors import ValidationError
 
 
 class _BaseValidator(metaclass=ABCMeta):
