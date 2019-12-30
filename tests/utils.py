@@ -56,7 +56,7 @@ def setup_lights(app: Flask) -> None:
         for id in range(1, 3+1):
             db.session.add(Light(
                 name=f'Light-{id}',
-                is_powered_on=(id % 2 == 0)
+                is_powered_on=False
             ))
         db.session.commit()
 
