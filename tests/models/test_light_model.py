@@ -56,14 +56,14 @@ class TestLightModel(object):
         )
 
     @with_app_context
-    def test_light_creation_without_data_raises_integrity_error(self):
-        with pytest.raises(IntegrityError):
+    def test_light_creation_without_data_raises_validation_error(self):
+        with pytest.raises(ValidationError):
             self.session.add(Light())
             self.session.commit()
 
     @with_app_context
-    def test_light_creation_without_name_raises_integrity_error(self):
-        with pytest.raises(IntegrityError):
+    def test_light_creation_without_name_raises_validation_error(self):
+        with pytest.raises(ValidationError):
             self.session.add(Light(is_powered_on=True))
             self.session.commit()
 
