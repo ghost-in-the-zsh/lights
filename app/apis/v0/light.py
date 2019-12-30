@@ -2,11 +2,28 @@
 
 from http import HTTPStatus
 
-from flask import abort
+from flask import (
+    jsonify,
+    url_for,
+    abort,
+    request
+)
 from flask_classful import (
     FlaskView,
     route
 )
+
+from app.common.errors import (
+    ObjectNotFoundError,
+    DataIntegrityError,
+    ValidationError
+)
+from app.services.light import (
+    get_light_list,
+    create_light,
+    get_light
+)
+from ._schemas import LightSchema
 
 
 class LightAPI(FlaskView):
@@ -21,12 +38,35 @@ class LightAPI(FlaskView):
     @route('/', methods=['GET'], endpoint='api.v0.light.get_all')
     def index(self):
         '''Get all `Light` objects.'''
-        abort(HTTPStatus.NOT_IMPLEMENTED)
+        lights = get_light_list()
+        light_schema = LightSchema(many=True)
+        serialized_lights = light_schema.dump(lights)
+        response = jsonify({
+            '_meta': {
+                'stats': {
+                    'total_count': len(lights),
+                },
+                'links': [{
+                    'rel': 'self',
+                    'href': url_for('api.v0.light.get_all', _external=True)
+                }]
+            },
+            'lights': serialized_lights
+        })
+        return response, HTTPStatus.OK
 
     @route('/<int:id>', methods=['GET'], endpoint='api.v0.light.detail')
     def get(self, id: int):
         '''Get one `Light` object.'''
-        abort(HTTPStatus.NOT_IMPLEMENTED)
+        try:
+            light = get_light(id)
+        except ObjectNotFoundError:
+            abort(HTTPStatus.NOT_FOUND)
+
+        light_schema = LightSchema()
+        serialized_case = light_schema.dump(light)
+        response = jsonify({'light': serialized_case})
+        return response, HTTPStatus.OK
 
     @route('/', methods=['POST'], endpoint='api.v0.light.submit_new')
     def post(self):

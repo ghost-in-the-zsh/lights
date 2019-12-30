@@ -19,6 +19,7 @@ from app.config import app_configs
 from app.models import (
     db as sqla,
     migrate,
+    marshmallow
 )
 from app.apis import current_api as api
 
@@ -32,6 +33,7 @@ def create_app(config_name: Text) -> Flask:
     # init extensions
     sqla.init_app(app)
     migrate.init_app(app, sqla)
+    marshmallow.init_app(app)   # must be init'ed *after* the SQLAlchemy ORM
 
     # register REST API
     prefix = f'/api/v{api.version}/lights'
