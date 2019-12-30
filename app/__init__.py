@@ -6,6 +6,7 @@ This module creates and sets up the application to be run by the server.
 # pylint: disable=no-member
 
 from typing import Text
+from http import HTTPStatus
 
 from flask import (
     Flask,
@@ -16,6 +17,16 @@ from sqlalchemy.engine import Engine
 
 from app.settings import INSTANCE_DIR
 from app.config import app_configs
+from app.common.handlers import (
+    http_400_handler,
+    http_401_handler,
+    http_403_handler,
+    http_404_handler,
+    http_405_handler,
+    http_406_handler,
+    http_500_handler,
+    http_501_handler
+)
 from app.models import (
     db as sqla,
     migrate,
@@ -39,6 +50,16 @@ def create_app(config_name: Text) -> Flask:
     prefix = f'/api/v{api.version}/lights'
     view_options = dict(trailing_slash=False, method_dashified=True)
     api.LightAPI.register(app, route_prefix=prefix, route_base='/', **view_options)
+
+    # register error handlers
+    app.register_error_handler(HTTPStatus.BAD_REQUEST, http_400_handler)
+    app.register_error_handler(HTTPStatus.UNAUTHORIZED, http_401_handler)
+    app.register_error_handler(HTTPStatus.FORBIDDEN, http_403_handler)
+    app.register_error_handler(HTTPStatus.NOT_FOUND, http_404_handler)
+    app.register_error_handler(HTTPStatus.METHOD_NOT_ALLOWED, http_405_handler)
+    app.register_error_handler(HTTPStatus.NOT_ACCEPTABLE, http_406_handler)
+    app.register_error_handler(HTTPStatus.INTERNAL_SERVER_ERROR, http_500_handler)
+    app.register_error_handler(HTTPStatus.NOT_IMPLEMENTED, http_501_handler)
 
     return app
 
