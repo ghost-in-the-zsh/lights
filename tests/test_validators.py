@@ -54,6 +54,11 @@ class TestMinLengthValidator(object):
         with pytest.raises(TypeError):
             validator.validate(2)
 
+    def test_none_type_validation_argument_raises_validation_error(self):
+        validator = MinLengthValidator(min_length=0)
+        with pytest.raises(ValidationError):
+            validator.validate(None)
+
     def test_repr_result_matches(self):
         validator = MinLengthValidator(min_length=2, error_message='bad bad')
         expected  = "<MinLengthValidator: min_length=2 error_message='bad bad'>"
@@ -106,6 +111,11 @@ class TestMaxLengthValidator(object):
         validator = MaxLengthValidator(max_length=0)
         with pytest.raises(TypeError):
             validator.validate(2)
+
+    def test_none_type_validation_argument_raises_validation_error(self):
+        validator = MaxLengthValidator(max_length=1)
+        with pytest.raises(ValidationError):
+            validator.validate(None)
 
     def test_repr_result_matches(self):
         validator = MaxLengthValidator(max_length=2, error_message='bad bad')

@@ -31,8 +31,8 @@ class MinLengthValidator(_BaseValidator):
         self.error_message = error_message
 
     def validate(self, value: Iterable):
-        if len(value) < self.min_length:
-            raise ValidationError(self.error_message)
+        if not value or len(value) < self.min_length:
+            raise ValidationError(f'{self.error_message}: {value}')
 
     def __repr__(self):
         return "<{}: min_length={} error_message='{}'>".format(
@@ -57,8 +57,8 @@ class MaxLengthValidator(_BaseValidator):
         self.error_message = error_message
 
     def validate(self, value: Iterable):
-        if len(value) > self.max_length:
-            raise ValidationError(self.error_message)
+        if not value or len(value) > self.max_length:
+            raise ValidationError(f'{self.error_message}: {value}')
 
     def __repr__(self):
         return "<{}: max_length={} error_message='{}'>".format(
