@@ -231,3 +231,140 @@ class TestLightPostAPI(object):
 
         assert response.status_code == HTTPStatus.BAD_REQUEST.value
         assert response.content_type == self.mime_type
+
+
+class TestLightPutAPI(object):
+    '''Unit tests for the `PUT` methods of the `LightAPI` class.'''
+
+    @classmethod
+    def setup_class(cls):
+        app = create_app('testing')
+        setup_database(app)
+        cls.app = app
+
+    @classmethod
+    def teardown_class(cls):
+        teardown_database(cls.app)
+        del cls.app
+
+    def setup_method(self, method: Callable):
+        app = self.__class__.app
+        client = app.test_client()
+        setup_lights(app)
+
+        self.app = app
+        self.client = client
+        self.api_ver = current_api.version
+        self.mime_type = 'application/json'
+
+    def teardown_method(self, method: Callable):
+        teardown_lights(self.app)
+        del self.client
+        del self.app
+
+    @with_app_context
+    def test_put_request_is_not_implemented(self):
+        root_url = url_for(f'api.v{self.api_ver}.light.replace', id=1)
+        response = self.client.put(
+            root_url,
+            data=dict(
+                # TODO
+            ),
+            headers=dict(
+                Accept=self.mime_type
+            )
+        )
+
+        assert response.status_code == HTTPStatus.NOT_IMPLEMENTED.value
+        assert response.content_type == self.mime_type
+
+
+class TestLightPatchAPI(object):
+    '''Unit tests for the `PATCH` methods of the `LightAPI` class.'''
+
+    @classmethod
+    def setup_class(cls):
+        app = create_app('testing')
+        setup_database(app)
+        cls.app = app
+
+    @classmethod
+    def teardown_class(cls):
+        teardown_database(cls.app)
+        del cls.app
+
+    def setup_method(self, method: Callable):
+        app = self.__class__.app
+        client = app.test_client()
+        setup_lights(app)
+
+        self.app = app
+        self.client = client
+        self.api_ver = current_api.version
+        self.mime_type = 'application/json'
+
+    def teardown_method(self, method: Callable):
+        teardown_lights(self.app)
+        del self.client
+        del self.app
+
+    @with_app_context
+    def test_patch_request_is_not_implemented(self):
+        root_url = url_for(f'api.v{self.api_ver}.light.update', id=1)
+        response = self.client.patch(
+            root_url,
+            data=dict(
+                # TODO
+            ),
+            headers=dict(
+                Accept=self.mime_type
+            )
+        )
+
+        assert response.status_code == HTTPStatus.NOT_IMPLEMENTED.value
+        assert response.content_type == self.mime_type
+
+
+class TestLightDeleteAPI(object):
+    '''Unit tests for the `DELETE` methods of the `LightAPI` class.'''
+
+    @classmethod
+    def setup_class(cls):
+        app = create_app('testing')
+        setup_database(app)
+        cls.app = app
+
+    @classmethod
+    def teardown_class(cls):
+        teardown_database(cls.app)
+
+    def setup_method(self, method: Callable):
+        app = self.__class__.app
+        client = app.test_client()
+        setup_lights(app)
+
+        self.app = app
+        self.client = client
+        self.api_ver = current_api.version
+        self.mime_type = 'application/json'
+
+    def teardown_method(self, method: Callable):
+        teardown_lights(self.app)
+        del self.app
+        del self.client
+
+    @with_app_context
+    def test_delete_request_is_not_implemented(self):
+        root_url = url_for(f'api.v{self.api_ver}.light.delete', id=1)
+        response = self.client.delete(
+            root_url,
+            data=dict(
+                # TODO
+            ),
+            headers=dict(
+                Accept=self.mime_type
+            )
+        )
+
+        assert response.status_code == HTTPStatus.NOT_IMPLEMENTED.value
+        assert response.content_type == self.mime_type
