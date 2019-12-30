@@ -103,6 +103,9 @@ def delete_light(light_id: int) -> None:
 
     :param light_id: The database ID of the `Light` to be deleted.
     '''
+    if not _light_exists(light_id):
+        raise ObjectNotFoundError(f'Light object {light_id} not found.')
+
     session = db.session
     try:
         Light.query.filter_by(id=light_id).delete()
@@ -113,3 +116,14 @@ def delete_light(light_id: int) -> None:
         # so deleting a `Light` does not raise exceptions in our case.
         session.rollback()
         raise DataIntegrityError(f'Light {light_id} cannot be deleted.') from e
+
+
+def _light_exists(light_id: int) -> bool:
+    '''Return `True` if the `Light` exists. Otherwise `False`.
+
+    This is a less expensive way of checking for its existence, as it only
+    gets the scalar `Light.id` field instead of loading and instantiating a
+    full object just to throw it away.
+    '''
+    session = db.session
+    return session.query(Light.id).filter_by(id=light_id).scalar() is not None

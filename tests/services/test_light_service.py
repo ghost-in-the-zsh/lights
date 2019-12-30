@@ -136,11 +136,12 @@ class TestLightService(object):
             create_light(**data)
 
     @with_app_context
-    def test_delete_light_is_ok(self):
+    def test_delete_existing_light_is_ok(self):
         delete_light(1)
         with pytest.raises(ObjectNotFoundError):
             get_light(1)
 
     @with_app_context
-    def test_non_existent_light_deletion_is_ok(self):
-        delete_light(10)
+    def test_non_existent_light_deletion_raises_object_not_found_error(self):
+        with pytest.raises(ObjectNotFoundError):
+            delete_light(10)
