@@ -76,7 +76,19 @@ class LightAPI(FlaskView):
         the client know where the new resource can be found. This response
         includes the newly created object in the body.
         '''
-        abort(HTTPStatus.NOT_IMPLEMENTED)
+        try:
+            light = create_light(**request.form)
+        except (DataIntegrityError, ValidationError) as e:
+            abort(HTTPStatus.BAD_REQUEST, description=repr(e))
+
+        light_url = url_for('api.v0.light.detail', id=light.id)
+        light_schema = LightSchema(exclude=('_meta',))    # _meta.link goes in header
+        light_json = light_schema.dump(light)
+        response = jsonify({'light': light_json})
+
+        # required in HTTP-201 responses
+        response.headers['Location'] = light_url
+        return response, HTTPStatus.CREATED
 
     @route('/<int:id>', methods=['PUT'], endpoint='api.v0.light.replace')
     def put(self, id: int):

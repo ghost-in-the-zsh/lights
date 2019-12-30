@@ -139,3 +139,95 @@ class TestLightGetAPI(object):
 
         assert response.status_code == HTTPStatus.NOT_FOUND.value
         assert response.content_type == self.mime_type
+
+
+class TestLightPostAPI(object):
+    '''Unit tests for the `POST` methods of the `LightAPI` class.'''
+
+    @classmethod
+    def setup_class(cls):
+        app = create_app('testing')
+        setup_database(app)
+        cls.app = app
+
+    @classmethod
+    def teardown_class(cls):
+        teardown_database(cls.app)
+        del cls.app
+
+    def setup_method(self, method: Callable):
+        app = self.__class__.app
+        client = app.test_client()
+        setup_lights(app)
+
+        self.app = app
+        self.client = client
+        self.api_ver = current_api.version
+        self.mime_type = 'application/json'
+
+    def teardown_method(self, method: Callable):
+        teardown_lights(self.app)
+        del self.client
+        del self.app
+
+    @with_app_context
+    def test_valid_request_is_created(self):
+        data = dict(
+            name='A Valid Name',
+            is_powered_on=False     # prevent `bool('False') == True` on the server-side
+        )
+        root_url = url_for(f'api.v{self.api_ver}.light.submit_new')
+
+        response = self.client.post(
+            root_url,
+            data=data,
+            headers=dict(Accept=self.mime_type)
+        )
+
+        actual = response.json
+        print(response, actual)
+        self_url = url_for(f'api.v{self.api_ver}.light.detail', id=actual['light']['id'])
+        expected = {
+            'light': {
+                'id': actual['light']['id'],
+                'name': data['name'],
+                'is_powered_on': data['is_powered_on']
+            }
+        }
+
+        assert response.status_code == HTTPStatus.CREATED.value
+        assert response.content_type == self.mime_type
+        assert response.headers['Location'] == self_url
+        assert expected == actual
+
+    @with_app_context
+    def test_request_with_invalid_short_name_is_bad_request(self):
+        data = dict(
+            name='A'*(MIN_NAME_LENGTH-1),
+            is_powered_on=False
+        )
+        root_url = url_for(f'api.v{self.api_ver}.light.submit_new')
+        response = self.client.post(
+            root_url,
+            data=data,
+            headers=dict(Accept=self.mime_type)
+        )
+
+        assert response.status_code == HTTPStatus.BAD_REQUEST.value
+        assert response.content_type == self.mime_type
+
+    @with_app_context
+    def test_request_with_invalid_long_name_is_bad_request(self):
+        data = dict(
+            name='A'*(MAX_NAME_LENGTH+1),
+            is_powered_on=False
+        )
+        root_url = url_for(f'api.v{self.api_ver}.light.submit_new')
+        response = self.client.post(
+            root_url,
+            data=data,
+            headers=dict(Accept=self.mime_type)
+        )
+
+        assert response.status_code == HTTPStatus.BAD_REQUEST.value
+        assert response.content_type == self.mime_type
