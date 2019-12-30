@@ -22,3 +22,9 @@ def models(c):
 def services(c):
     '''Run the set of unit tests, but only for the services layer.'''
     c.run(f'{COMMAND} tests/services')
+
+
+@task
+def validators(c):
+    '''Run the set of unit tests, but only for data validators.'''
+    c.run(f'{COMMAND} tests/test_validators.py')
