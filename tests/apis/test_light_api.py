@@ -354,17 +354,12 @@ class TestLightDeleteAPI(object):
         del self.client
 
     @with_app_context
-    def test_delete_request_is_not_implemented(self):
+    def test_delete_single_light_is_no_content(self):
         root_url = url_for(f'api.v{self.api_ver}.light.delete', id=1)
         response = self.client.delete(
             root_url,
-            data=dict(
-                # TODO
-            ),
-            headers=dict(
-                Accept=self.mime_type
-            )
+            headers=dict(Accept=self.mime_type)
         )
 
-        assert response.status_code == HTTPStatus.NOT_IMPLEMENTED.value
+        assert response.status_code == HTTPStatus.NO_CONTENT.value
         assert response.content_type == self.mime_type

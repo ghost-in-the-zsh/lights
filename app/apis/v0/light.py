@@ -21,7 +21,8 @@ from app.common.errors import (
 from app.services.light import (
     get_light_list,
     create_light,
-    get_light
+    get_light,
+    delete_light
 )
 from ._schemas import LightSchema
 
@@ -120,4 +121,10 @@ class LightAPI(FlaskView):
     @route('/<int:id>', methods=['DELETE'], endpoint='api.v0.light.delete')
     def delete(self, id: int):
         '''Delete the `Light` identified by the given ID, if it exists.'''
-        abort(HTTPStatus.NOT_IMPLEMENTED)
+        try:
+            delete_light(id)
+            return {}, HTTPStatus.NO_CONTENT
+        except ObjectNotFoundError as e:
+            abort(HTTPStatus.NOT_FOUND, description=repr(e))
+        except DataIntegrityError as e:
+            abort(HTTPStatus.BAD_REQUEST, description=repr(e))
