@@ -19,6 +19,12 @@ def models(c):
 
 
 @task
+def apis(c):
+    '''Run the set of unit tests, but only for the APIs.'''
+    c.run(f'{COMMAND} tests/apis')
+
+
+@task
 def services(c):
     '''Run the set of unit tests, but only for the services layer.'''
     c.run(f'{COMMAND} tests/services')
