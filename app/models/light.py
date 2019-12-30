@@ -99,5 +99,5 @@ class Light(db.Model):
             self.__class__.__name__,
             self.id,
             self.name,
-            str(self.is_powered_on)
+            self.is_powered_on
         )
