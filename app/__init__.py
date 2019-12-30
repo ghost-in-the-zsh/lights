@@ -16,7 +16,10 @@ from sqlalchemy.engine import Engine
 
 from app.settings import INSTANCE_DIR
 from app.config import app_configs
-from app.models import db as sqla
+from app.models import (
+    db as sqla,
+    migrate,
+)
 
 
 def create_app(config_name: Text) -> Flask:
@@ -26,6 +29,7 @@ def create_app(config_name: Text) -> Flask:
 
     # init extensions
     sqla.init_app(app)
+    migrate.init_app(app, sqla)
 
     return app
 

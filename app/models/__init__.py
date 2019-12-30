@@ -9,8 +9,10 @@ on database server backend. (For more info, see nested packages/modules.)
 '''
 
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 
 # model classes depend on the db instance,
 # so it must exist before models are imported
 db = SQLAlchemy()
+migrate = Migrate()
