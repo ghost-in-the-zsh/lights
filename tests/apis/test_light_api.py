@@ -1,3 +1,10 @@
+'''The Light API test module.
+
+Note that the naming convention in this module (e.g. for classes,
+module names, etc) is as it is so that `pytest` can find them via
+introspection.
+'''
+
 # pylint: disable=no-member
 
 from typing import (
