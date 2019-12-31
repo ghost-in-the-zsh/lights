@@ -354,6 +354,17 @@ class TestLightDeleteAPI(object):
         del self.client
 
     @with_app_context
+    def test_delete_collection_returns_no_content(self):
+        root_url = url_for(f'api.v{self.api_ver}.light.delete_all')
+        response = self.client.delete(
+            root_url,
+            headers=dict(Accept=self.mime_type)
+        )
+
+        assert response.status_code == HTTPStatus.NO_CONTENT.value
+        assert response.content_type == self.mime_type
+
+    @with_app_context
     def test_delete_single_light_returns_no_content(self):
         root_url = url_for(f'api.v{self.api_ver}.light.delete', id=1)
         response = self.client.delete(
@@ -362,4 +373,15 @@ class TestLightDeleteAPI(object):
         )
 
         assert response.status_code == HTTPStatus.NO_CONTENT.value
+        assert response.content_type == self.mime_type
+
+    @with_app_context
+    def test_delete_single_non_existent_light_is_not_found(self):
+        root_url = url_for(f'api.v{self.api_ver}.light.delete', id=10)
+        response = self.client.delete(
+            root_url,
+            headers=dict(Accept=self.mime_type)
+        )
+
+        assert response.status_code == HTTPStatus.NOT_FOUND.value
         assert response.content_type == self.mime_type

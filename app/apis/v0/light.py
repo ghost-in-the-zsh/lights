@@ -22,7 +22,8 @@ from app.services.light import (
     get_light_list,
     create_light,
     get_light,
-    delete_light
+    delete_light,
+    delete_light_list
 )
 from ._schemas import LightSchema
 
@@ -116,7 +117,12 @@ class LightAPI(FlaskView):
     @route('/', methods=['DELETE'], endpoint='api.v0.light.delete_all')
     def delete_all(self):
         '''Delete all the `Light`s.'''
-        abort(HTTPStatus.NOT_IMPLEMENTED)
+        try:
+            delete_light_list()
+            return {}, HTTPStatus.NO_CONTENT
+        except DataIntegrityError as e:
+            abort(HTTPStatus.BAD_REQUEST, description=repr(e))
+
 
     @route('/<int:id>', methods=['DELETE'], endpoint='api.v0.light.delete')
     def delete(self, id: int):
