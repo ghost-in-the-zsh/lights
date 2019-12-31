@@ -5,10 +5,7 @@ import pytest
 
 from typing import Callable, Dict, Text
 
-from sqlalchemy.exc import (
-    IntegrityError,
-    StatementError
-)
+from sqlalchemy.exc import IntegrityError
 
 from app import create_app
 from app.settings import (
@@ -71,8 +68,8 @@ class TestLightModel(object):
             self.session.commit()
 
     @with_app_context
-    def test_light_creation_without_power_state_raises_integrity_error(self):
-        with pytest.raises(IntegrityError):
+    def test_light_creation_without_power_state_raises_validation_error(self):
+        with pytest.raises(ValidationError):
             self.session.add(Light(name='Light-00'))
             self.session.commit()
 
@@ -100,29 +97,28 @@ class TestLightModel(object):
 
     @with_app_context
     def test_light_power_state_truthy_values_pass(self):
-        for state in (True, 'True', 'true', '1'):
+        for index, state in enumerate((True, 'True', 'true')):
             self.session.add(Light(
-                name=f'Whatever-{state}-{type(state)}',   # cheap way to make names unique
+                name=f'Name-{index}',   # make names unique to avoid PK violations
                 is_powered_on=state
             ))
             self.session.commit()
-
 
     @with_app_context
     def test_light_power_state_falsey_values_pass(self):
-        for state in (False, 'False', 'false', '0', '0.0'):
+        for index, state in enumerate((False, 'False', 'false')):
             self.session.add(Light(
-                name=f'Whatever-{state}-{type(state)}',   # cheap way to make names unique
+                name=f'Name-{index}',   # make names unique to avoid PK violations
                 is_powered_on=state
             ))
             self.session.commit()
 
     @with_app_context
-    def test_light_power_state_unexpected_value_raises_statement_error(self):
-        with pytest.raises(StatementError):
-            for state in ('t', 1, 'Yes', 'yes', 'y', 'f', 0, 'No', 'no', 'n'):
+    def test_light_power_state_unexpected_value_raises_validation_error(self):
+        with pytest.raises(ValidationError):
+            for index, state in enumerate(('T', 't', '1', 'Yes', 'yes', 'Y', 'y', 'F', 'f', '0', 'No', 'no', 'N', 'n', None)):
                 self.session.add(Light(
-                    name=f'Whatever-{state}-{type(state)}',   # cheap way to make names unique
+                    name=f'Name-{index}',   # make names unique to avoid PK violations
                     is_powered_on=state
                 ))
                 self.session.commit()

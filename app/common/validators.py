@@ -5,7 +5,8 @@ basic rules before we accept their data and store it in the database.
 '''
 
 from abc import ABCMeta
-from typing import Iterable, Any, Text
+from typing import Iterable, Any, Text, ClassVar
+from inspect import isclass
 
 from app.common.errors import ValidationError
 
@@ -64,5 +65,29 @@ class MaxLengthValidator(_BaseValidator):
         return "<{}: max_length={} error_message='{}'>".format(
             self.__class__.__name__,
             self.max_length,
+            self.error_message
+        )
+
+
+class ValueTypeValidator(_BaseValidator):
+    '''Validator to verify a value is of type `bool`.'''
+    def __init__(self, *, class_type: ClassVar, error_message: Text=None):
+        if not isclass(class_type):
+            raise TypeError('A class type is required.')
+
+        if error_message is None or len(error_message) == 0:
+            error_message = self.__class__.__name__ + f'(class_type={class_type}) rejected data'
+
+        self.class_type = class_type
+        self.error_message = error_message
+
+    def validate(self, value: Any):
+        if type(value) != self.class_type:
+            raise ValidationError(f'{self.error_message}: {type(value)}')
+
+    def __repr__(self):
+        return "<{}: class_type={} error_message='{}'>".format(
+            self.__class__.__name__,
+            self.class_type,
             self.error_message
         )

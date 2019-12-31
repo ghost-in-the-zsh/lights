@@ -3,7 +3,8 @@ import pytest
 from app.common.errors import ValidationError
 from app.common.validators import (
     MinLengthValidator,
-    MaxLengthValidator
+    MaxLengthValidator,
+    ValueTypeValidator
 )
 
 
@@ -120,4 +121,36 @@ class TestMaxLengthValidator(object):
     def test_repr_result_matches(self):
         validator = MaxLengthValidator(max_length=2, error_message='bad bad')
         expected  = "<MaxLengthValidator: max_length=2 error_message='bad bad'>"
+        assert repr(validator) == expected
+
+
+class TestValueTypeValidator(object):
+    '''Unit tests for the `ValueTypeValidator` class.'''
+
+    def test_expected_usage_ctor_is_accepted(self):
+        ValueTypeValidator(class_type=int)
+
+    def test_non_class_var_type_in_ctor_raises_type_error(self):
+        with pytest.raises(TypeError):
+            ValueTypeValidator(class_type=5)
+
+    def test_matching_value_class_type_is_accepted(self):
+        validator = ValueTypeValidator(class_type=int)
+        validator.validate(5)
+
+    def test_unexpected_value_class_type_raises_validation_error(self):
+        validator = ValueTypeValidator(class_type=str)
+        with pytest.raises(ValidationError):
+            validator.validate(5)
+
+    def test_string_error_message_in_ctor_is_accepted(self):
+        ValueTypeValidator(class_type=str, error_message='error string')
+
+    def test_non_string_error_message_in_ctor_raises_type_error(self):
+        with pytest.raises(TypeError):
+            ValueTypeValidator(class_type=str, error_message=5)
+
+    def test_repr_result_matches(self):
+        validator = ValueTypeValidator(class_type=int, error_message='bad bad')
+        expected  = "<ValueTypeValidator: class_type=<class 'int'> error_message='bad bad'>"
         assert repr(validator) == expected
