@@ -126,7 +126,29 @@ class LightAPI(FlaskView):
 
     @route('/<int:id>', methods=['DELETE'], endpoint='api.v0.light.delete')
     def delete(self, id: int):
-        '''Delete the `Light` identified by the given ID, if it exists.'''
+        '''Delete the `Light` identified by the given ID, if it exists.
+
+        You will find that some people say you should return `HTTP-200 OK`
+        or `HTTP-204 No Content` when trying to delete non-existent rows.
+        These arguments don't matter, though. What matters is the standard
+        and it says that "this method is similar to the rm command in
+        UNIX"[1].
+
+        The `rm` command always throws an error when trying to delete a
+        non-existent resource. For example:
+
+            $ rm /path/to/nowhere
+            rm: cannot remove '/path/to/nowhere': No such file or directory
+
+        Therefore, we return `HTTP-404 Not Found` whenever the clients try
+        to delete something that does not exist. Standards take precedence
+        over personal opinions any day of the week.
+
+        Also, note that idempotency does not include return codes[2].
+
+        [1] https://tools.ietf.org/html/rfc7231#section-4.3.5
+        [2] https://stackoverflow.com/a/24713946/4594973
+        '''
         try:
             delete_light(id)
             return {}, HTTPStatus.NO_CONTENT
