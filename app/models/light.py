@@ -73,8 +73,8 @@ class Light(db.Model):
         # evals to `True`, i.e. `bool('False') == True` is `True` (any non-
         # empty `str` is truthy), which is likely not what you want.
         is_powered_on = kwargs.get('is_powered_on')
-        truthy = (True, 'True', 'true', 1)
-        falsey = (False, 'False', 'false', 0, 0.0)
+        truthy = (True, 'True', 'true', '1')
+        falsey = (False, 'False', 'false', '0', '0.0')
         if is_powered_on in truthy:
             self.is_powered_on = True
         elif is_powered_on in falsey:

@@ -11,7 +11,8 @@ from typing import List, Optional, Dict
 
 from sqlalchemy.exc import (
     IntegrityError,
-    InvalidRequestError
+    InvalidRequestError,
+    StatementError
 )
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -74,7 +75,7 @@ def create_light(**data: Dict) -> Optional[Light]:
         session.add(light)
         session.commit()
         return light
-    except IntegrityError as e: # let client handle `ValidationError`
+    except (IntegrityError, StatementError) as e: # let client handle `ValidationError`
         session.rollback()
         raise DataIntegrityError(f'Light creation failed: {data}. {repr(e)}') from e
 
@@ -93,7 +94,7 @@ def update_light(light: Light) -> None:
     try:
         session.add(light)
         session.commit()
-    except IntegrityError as e: # let client handle `ValidationError`
+    except (IntegrityError, StatementError) as e: # let client handle `ValidationError`
         session.rollback()
         raise DataIntegrityError(f'Light {light.id} failed to update.') from e
 

@@ -5,7 +5,10 @@ import pytest
 
 from typing import Callable, Dict, Text
 
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import (
+    IntegrityError,
+    StatementError
+)
 
 from app import create_app
 from app.settings import (
@@ -94,6 +97,35 @@ class TestLightModel(object):
     def test_light_name_at_max_length_passes_validation(self):
         light = Light.query.filter_by(id=1).one()
         light.name = 'a' * MAX_NAME_LENGTH
+
+    @with_app_context
+    def test_light_power_state_truthy_values_pass(self):
+        for state in (True, 'True', 'true', '1'):
+            self.session.add(Light(
+                name=f'Whatever-{state}-{type(state)}',   # cheap way to make names unique
+                is_powered_on=state
+            ))
+            self.session.commit()
+
+
+    @with_app_context
+    def test_light_power_state_falsey_values_pass(self):
+        for state in (False, 'False', 'false', '0', '0.0'):
+            self.session.add(Light(
+                name=f'Whatever-{state}-{type(state)}',   # cheap way to make names unique
+                is_powered_on=state
+            ))
+            self.session.commit()
+
+    @with_app_context
+    def test_light_power_state_unexpected_value_raises_statement_error(self):
+        with pytest.raises(StatementError):
+            for state in ('t', 1, 'Yes', 'yes', 'y', 'f', 0, 'No', 'no', 'n'):
+                self.session.add(Light(
+                    name=f'Whatever-{state}-{type(state)}',   # cheap way to make names unique
+                    is_powered_on=state
+                ))
+                self.session.commit()
 
     @with_app_context
     def test_light_repr_format_matches(self):
