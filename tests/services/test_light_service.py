@@ -19,7 +19,8 @@ from app.services.light import (
     create_light,
     get_light,
     update_light,
-    delete_light
+    delete_light,
+    delete_light_list
 )
 
 from tests.utils import (
@@ -145,3 +146,7 @@ class TestLightService(object):
     def test_delete_non_existent_light_raises_object_not_found_error(self):
         with pytest.raises(ObjectNotFoundError):
             delete_light(10)
+
+    @with_app_context
+    def test_delete_collection_is_ok(self):
+        delete_light_list()

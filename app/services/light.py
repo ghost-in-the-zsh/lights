@@ -119,6 +119,23 @@ def delete_light(light_id: int) -> None:
         raise DataIntegrityError(f'Light {light_id} cannot be deleted.') from e
 
 
+def delete_light_list() -> None:
+    '''Delete all the `Light` objects from the database.'''
+    # The docs[1] don't list errors raised by this implementation,
+    # so it's probably like `delete_light`'s implementation.
+    # See docs for caveats.
+    #
+    # [1] https://docs.sqlalchemy.org/en/13/orm/query.html#sqlalchemy.orm.query.Query.delete
+    session = db.session
+    try:
+        Light.query.delete(synchronize_session=False)
+        session.commit()
+    except IntegrityError as e:
+        # See notes in `delete_light`
+        session.rollback()
+        raise DataIntegrityError(f'Lights collection could not be deleted') from e
+
+
 def _light_exists(light_id: int) -> bool:
     '''Return `True` if the `Light` exists. Otherwise `False`.
 
