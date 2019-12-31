@@ -354,7 +354,7 @@ class TestLightDeleteAPI(object):
         del self.client
 
     @with_app_context
-    def test_delete_single_light_is_no_content(self):
+    def test_delete_single_light_returns_no_content(self):
         root_url = url_for(f'api.v{self.api_ver}.light.delete', id=1)
         response = self.client.delete(
             root_url,
