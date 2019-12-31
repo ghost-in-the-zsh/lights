@@ -142,6 +142,6 @@ class TestLightService(object):
             get_light(1)
 
     @with_app_context
-    def test_non_existent_light_deletion_raises_object_not_found_error(self):
+    def test_delete_non_existent_light_raises_object_not_found_error(self):
         with pytest.raises(ObjectNotFoundError):
             delete_light(10)
