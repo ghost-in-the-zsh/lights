@@ -108,7 +108,8 @@ class LightAPI(FlaskView):
         '''Partially update a pre-existing `Light` object.
 
         This method is used to update parts of a given instance rather than
-        the entire object at once.
+        the entire object at once. This must be an atomic operation. A
+        partially updated object must never be returned.
 
         For replacing full objects, see `PUT`.
         '''
