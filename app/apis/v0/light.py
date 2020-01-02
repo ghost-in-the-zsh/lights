@@ -107,6 +107,9 @@ class LightAPI(FlaskView):
 
         [1] https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT
         '''
+        if not request.form:
+            abort(HTTPStatus.BAD_REQUEST, description='No data provided')
+
         try:
             light = get_light(id)
             light.name = request.form.get('name')

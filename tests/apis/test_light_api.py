@@ -316,6 +316,18 @@ class TestLightPutAPI(object):
         assert response.status_code == HTTPStatus.NOT_FOUND.value
         assert response.content_type == self.mime_type
 
+    @with_app_context
+    def test_put_request_with_no_data_is_bad_request(self, id: int=1):
+        root_url = url_for(f'api.v{self.api_ver}.light.replace', id=id)
+        response = self.client.put(
+            root_url,
+            data=dict(),
+            headers=dict(Accept=self.mime_type)
+        )
+
+        assert response.status_code == HTTPStatus.BAD_REQUEST.value
+        assert response.content_type == self.mime_type
+
 
 class TestLightPatchAPI(object):
     '''Unit tests for the `PATCH` methods of the `LightAPI` class.'''
