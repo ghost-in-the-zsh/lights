@@ -89,6 +89,8 @@ def update_light(light: Light) -> None:
     integrity constraints.
 
     :raises ValidationError: The dictionary data violates validation rules.
+
+    :raises ObjectNotFoundError: The object to be updated does not exist.
     '''
     session = db.session
     try:
