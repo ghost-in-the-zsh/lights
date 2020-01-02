@@ -131,7 +131,26 @@ class LightAPI(FlaskView):
 
         For replacing full objects, see `PUT`.
         '''
-        abort(HTTPStatus.NOT_IMPLEMENTED)
+        if not request.form:
+            abort(HTTPStatus.BAD_REQUEST, description='No data provided')
+
+        try:
+            light = get_light(id)
+
+            name = request.form.get('name')
+            if name:
+                light.name = name
+
+            power_state = request.form.get('is_powered_on')
+            if power_state:
+                light.is_powered_on = power_state
+
+            update_light(light)
+            return {}, HTTPStatus.NO_CONTENT
+        except ObjectNotFoundError as e:
+            abort(HTTPStatus.NOT_FOUND)
+        except (ValidationError, DataIntegrityError) as e:
+            abort(HTTPStatus.BAD_REQUEST, description=repr(e))
 
     @route('/', methods=['DELETE'], endpoint='api.v0.light.delete_all')
     def delete_all(self):

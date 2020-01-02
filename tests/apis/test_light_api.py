@@ -359,19 +359,102 @@ class TestLightPatchAPI(object):
         del self.app
 
     @with_app_context
-    def test_patch_request_is_not_implemented(self):
-        root_url = url_for(f'api.v{self.api_ver}.light.update', id=1)
+    def test_patch_request_to_update_name_returns_no_content(self, id: int=1, name: str='New Name'):
+        root_url = url_for(f'api.v{self.api_ver}.light.update', id=id)
+        response = self.client.patch(
+            root_url,
+            data=dict(name=name),
+            headers=dict(Accept=self.mime_type)
+        )
+
+        assert response.status_code == HTTPStatus.NO_CONTENT.value
+        assert response.content_type == self.mime_type
+
+        # verify the resource actually changed with a `GET` request
+        url = url_for(f'api.v{self.api_ver}.light.detail', id=id)
+        expected = {
+            'light': {
+                '_meta': {
+                    'links': [
+                        {
+                            'rel': 'self',
+                            'href': url_for(f'api.v{self.api_ver}.light.detail', id=id)
+                        }
+                    ]
+                },
+                'id': id,
+                'name': name,
+                'is_powered_on': False
+            }
+        }
+        response = self.client.get(url, content_type=self.mime_type)
+        actual = response.json
+
+        assert response.status_code == HTTPStatus.OK.value
+        assert response.content_type == self.mime_type
+        assert expected == actual
+
+    @with_app_context
+    def test_patch_request_to_update_power_state_returns_no_content(self, id: int=1, power_state: bool=True):
+        root_url = url_for(f'api.v{self.api_ver}.light.update', id=id)
+        response = self.client.patch(
+            root_url,
+            data=dict(is_powered_on=power_state),
+            headers=dict(Accept=self.mime_type)
+        )
+
+        assert response.status_code == HTTPStatus.NO_CONTENT.value
+        assert response.content_type == self.mime_type
+
+        # verify the resource actually changed with a `GET` request
+        url = url_for(f'api.v{self.api_ver}.light.detail', id=id)
+        expected = {
+            'light': {
+                '_meta': {
+                    'links': [
+                        {
+                            'rel': 'self',
+                            'href': url_for(f'api.v{self.api_ver}.light.detail', id=id)
+                        }
+                    ]
+                },
+                'id': id,
+                'name': f'Light-{id}',
+                'is_powered_on': power_state
+            }
+        }
+        response = self.client.get(url, content_type=self.mime_type)
+        actual = response.json
+
+        assert response.status_code == HTTPStatus.OK.value
+        assert response.content_type == self.mime_type
+        assert expected == actual
+
+    @with_app_context
+    def test_patch_request_on_non_existent_id_is_not_found(self, id: int=15):
+        root_url = url_for(f'api.v{self.api_ver}.light.update', id=id)
         response = self.client.patch(
             root_url,
             data=dict(
-                # TODO
+                name='Wowee',
+                is_powered_on=True
             ),
-            headers=dict(
-                Accept=self.mime_type
-            )
+            headers=dict(Accept=self.mime_type)
         )
 
-        assert response.status_code == HTTPStatus.NOT_IMPLEMENTED.value
+        assert response.status_code == HTTPStatus.NOT_FOUND.value
+        assert response.content_type == self.mime_type
+
+    @with_app_context
+    def test_patch_request_with_no_data_is_bad_request(self, id: int=1):
+        root_url = url_for(f'api.v{self.api_ver}.light.update', id=id)
+        response = self.client.patch(
+            root_url,
+            data=dict(),
+            headers=dict(Accept=self.mime_type)
+        )
+
+        assert response.status_code == HTTPStatus.BAD_REQUEST.value
         assert response.content_type == self.mime_type
 
 
