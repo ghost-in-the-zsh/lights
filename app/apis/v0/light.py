@@ -22,6 +22,7 @@ from app.services.light import (
     get_light_list,
     create_light,
     get_light,
+    update_light,
     delete_light,
     delete_light_list
 )
@@ -99,9 +100,23 @@ class LightAPI(FlaskView):
         This method is used to completely replace all the data of a given
         instance without creating a new one.
 
+        This method will *not* create a new `Light` instance, even though it's
+        an acceptable behavior[1].
+
         For partial updates, see `PATCH`.
+
+        [1] https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT
         '''
-        abort(HTTPStatus.NOT_IMPLEMENTED)
+        try:
+            light = get_light(id)
+            light.name = request.form.get('name')
+            light.is_powered_on = request.form.get('is_powered_on')
+            update_light(light)
+            return {}, HTTPStatus.NO_CONTENT
+        except ObjectNotFoundError as e:
+            abort(HTTPStatus.NOT_FOUND)
+        except (ValidationError, DataIntegrityError) as e:
+            abort(HTTPStatus.BAD_REQUEST, description=repr(e))
 
     @route('/<int:id>', methods=['PATCH'], endpoint='api.v0.light.update')
     def patch(self, id: int):
