@@ -38,7 +38,7 @@ def get_light_list(filters: Dict=None) -> List[Light]:
         try:
             return Light.query.filter_by(**filters).all()
         except InvalidRequestError as e:
-            raise InvalidPropertyError(f'Filter(s) do not match model field(s): {filters}') from e
+            raise InvalidPropertyError(f'Filter(s) do(es) not match model field(s): {filters}') from e
 
     return Light.query.all()
 
