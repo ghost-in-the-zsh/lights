@@ -4,7 +4,7 @@ A model represents a database table with each instance being built from
 each row. The instance fields are the database table columns.
 '''
 
-from typing import Text
+from typing import Text, Any
 
 from sqlalchemy import (
     Column,
@@ -35,7 +35,7 @@ class Light(db.Model):
             MinLengthValidator(min_length=MIN_NAME_LENGTH),
             MaxLengthValidator(max_length=MAX_NAME_LENGTH),
         ],
-        'is_powered_on': [
+        '_is_powered_on': [
             ValueTypeValidator(class_type=bool)
         ]
     }
@@ -51,7 +51,8 @@ class Light(db.Model):
         unique=True,
         nullable=False
     )
-    is_powered_on = Column(
+    _is_powered_on = Column(
+        'is_powered_on',
         Boolean,
         nullable=False
     )
@@ -59,7 +60,15 @@ class Light(db.Model):
     def __init__(self, **kwargs):
         super()
         self.name = kwargs.get('name')
-        self.is_powered_on = _try_to_bool(kwargs.get('is_powered_on'))
+        self.is_powered_on = kwargs.get('is_powered_on')
+
+    @property
+    def is_powered_on(self) -> bool:
+        return self._is_powered_on
+
+    @is_powered_on.setter
+    def is_powered_on(self, value: Any) -> None:
+        self._is_powered_on = _try_to_bool(value)
 
     @validates('name')
     def _validate_name(self, field_name: Text, field_value: Text) -> Text:
@@ -73,9 +82,9 @@ class Light(db.Model):
         '''
         return self._validate(field_name, field_value)
 
-    @validates('is_powered_on')
+    @validates('_is_powered_on')
     def _validate_powerstate(self, field_name: Text, field_value: Any) -> Any:
-        '''Validates the `is_powered_on` field on assignment.
+        '''Validates the `_is_powered_on` field on assignment.
 
         :param field_name: The name of the field being validated.
 
