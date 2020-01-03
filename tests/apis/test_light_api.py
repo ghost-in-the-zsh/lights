@@ -14,6 +14,7 @@ from typing import (
 from http import HTTPStatus
 
 from flask import url_for
+from pytest import mark
 
 from app import create_app
 from app.settings import (
@@ -359,6 +360,7 @@ class TestLightPatchAPI(object):
         del self.app
 
     @with_app_context
+    @mark.skip(reason='Standard-compliant implementation and test audit not complete.')
     def test_patch_request_to_update_name_returns_no_content(self, id: int=1, name: str='New Name'):
         root_url = url_for(f'api.v{self.api_ver}.light.update', id=id)
         response = self.client.patch(
@@ -395,6 +397,7 @@ class TestLightPatchAPI(object):
         assert expected == actual
 
     @with_app_context
+    @mark.skip(reason='Standard-compliant implementation and test audit not complete.')
     def test_patch_request_to_update_power_state_returns_no_content(self, id: int=1, power_state: bool=True):
         root_url = url_for(f'api.v{self.api_ver}.light.update', id=id)
         response = self.client.patch(
@@ -431,6 +434,7 @@ class TestLightPatchAPI(object):
         assert expected == actual
 
     @with_app_context
+    @mark.skip(reason='Standard-compliant implementation and test audit not complete.')
     def test_patch_request_on_non_existent_id_is_not_found(self, id: int=15):
         root_url = url_for(f'api.v{self.api_ver}.light.update', id=id)
         response = self.client.patch(
@@ -446,6 +450,7 @@ class TestLightPatchAPI(object):
         assert response.content_type == self.mime_type
 
     @with_app_context
+    @mark.skip(reason='Standard-compliant implementation and test audit not complete.')
     def test_patch_request_with_no_data_is_bad_request(self, id: int=1):
         root_url = url_for(f'api.v{self.api_ver}.light.update', id=id)
         response = self.client.patch(

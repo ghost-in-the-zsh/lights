@@ -125,32 +125,18 @@ class LightAPI(FlaskView):
     def patch(self, id: int):
         '''Partially update a pre-existing `Light` object.
 
-        This method is used to update parts of a given instance rather than
-        the entire object at once. This must be an atomic operation. A
-        partially updated object must never be returned.
+        This method is meant to receive a set of operations[1] (i.e.
+        delta/diff) to be applied to the resource identified by the URL
+        as an atomic operation. A partially updated object must never
+        be returned.
 
         For replacing full objects, see `PUT`.
+
+        [1] https://williamdurand.fr/2014/02/14/please-do-not-patch-like-an-idiot/
         '''
-        if not request.form:
-            abort(HTTPStatus.BAD_REQUEST, description='No data provided')
-
-        try:
-            light = get_light(id)
-
-            name = request.form.get('name')
-            if name:
-                light.name = name
-
-            power_state = request.form.get('is_powered_on')
-            if power_state:
-                light.is_powered_on = power_state
-
-            update_light(light)
-            return {}, HTTPStatus.NO_CONTENT
-        except ObjectNotFoundError as e:
-            abort(HTTPStatus.NOT_FOUND)
-        except (ValidationError, DataIntegrityError) as e:
-            abort(HTTPStatus.BAD_REQUEST, description=repr(e))
+        # FIXME: Previous implementation was not standard-compliant and has
+        # been (temporarily?) removed.
+        abort(HTTPStatus.NOT_IMPLEMENTED)
 
     @route('/', methods=['DELETE'], endpoint='api.v0.light.delete_all')
     def delete_all(self):
