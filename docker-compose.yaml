@@ -1,0 +1,56 @@
+version: "3.7"
+services:
+  db:
+    image: lights-db:latest
+    build:
+      context: .
+      dockerfile: docker/db.Dockerfile
+    user: postgres:postgres
+    hostname: db
+    container_name: lights-db
+    ports:
+      # SECURITY WARNING: This is done for your convenience and allows
+      # remote DB administration via pgAdmin4; remember to *force* SSL/TLS
+      # on client connections on configs. To fully hide the DB service,
+      # (e.g. production envs) comment out the `ports` entry and rebuild.
+      - 8001:5432/tcp
+    networks:
+      backend:
+    volumes:
+      - type: volume
+        source: postgres-data
+        target: /var/lib/postgresql/data
+    environment:
+      - LANG=en_US.UTF-8
+      # Use whatever timezone you want here
+      - TZ=America/Denver
+      # SECURITY WARNING: The env vars below are resolved at runtime.
+      # They must be defined in the host/system Compose is running on[1].
+      # For documentation on valid keys, see docs[2]. If password is not
+      # set, Postgres sets up a password-less database, b/c this is done
+      # before running included init scripts.
+      #
+      # This is for the super user/role. With `POSTGRES_DB` and
+      # `POSTGRES_USER` unspecified, the default `postgres` is used for
+      # both.
+      #
+      # [1] https://docs.docker.com/compose/compose-file/#environment
+      # [2] https://hub.docker.com/_/postgres/
+      - POSTGRES_PASSWORD
+      # SECURITY WARNING: These provide app-specific database and user/role
+      # credentials. These must also match in containers that want to
+      # connect to the database backend (e.g. `api` service).
+      - LIGHTS_DB
+      - LIGHTS_USER
+      - LIGHTS_PASSWORD
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+    driver: local
+    name: lights-db-data
+
+networks:
+  backend:
+    driver: bridge
+    name: lights-backend

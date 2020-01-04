@@ -35,11 +35,11 @@ MAX_NAME_LENGTH = 32
 #
 # NOTE: These data are ignored when using SQLite3 (e.g. testing).
 DATABASE_CONFIG = {
-    'host': environ.get('DATABASE_HOST', None),
-    'port': environ.get('DATABASE_PORT', None),
-    'name': environ.get('DATABASE_NAME', None),
-    'user': environ.get('DATABASE_USER', None),
-    'password': environ.get('DATABASE_PASSWORD', None),
+    'host': environ.get('LIGHTS_HOST', None),
+    'port': environ.get('LIGHTS_PORT', None),
+    'name': environ.get('LIGHTS_DB'  , None),
+    'user': environ.get('LIGHTS_USER', None),
+    'password': environ.get('LIGHTS_PASSWORD', None),
     'dialect': 'postgres',
     'driver': 'psycopg2'
 }
