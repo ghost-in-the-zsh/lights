@@ -1,5 +1,39 @@
 version: "3.7"
 services:
+  api:
+    image: lights-api:latest
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    user: light:light
+    hostname: api
+    container_name: lights-api
+    ports:
+      # SECURITY WARNING: The service should be used through a reverse
+      # HTTP proxy (e.g. Apache, Nginx) that has SSL/TLS enabled. This
+      # will be done at a later time and changed to listen on localhost
+      # only.
+      - 8000:7000/tcp
+    networks:
+      # SECURITY WARNING: This service is part of both the `frontend`
+      # and `backend` networks, as it's intended to be the "bridge"
+      # between client requests and the database backend.
+      frontend:
+      backend:
+    environment:
+      - LANG=en_US.UTF-8
+      - TZ=America/Denver
+      # SECURITY WARNING: These provide app-specific info to access the
+      # database backend. See `app.settings.DATABASE_CONFIG` for more.
+      # See additional notes in `db` service `environment` entry.
+      - LIGHTS_HOST
+      - LIGHTS_PORT
+      - LIGHTS_DB
+      - LIGHTS_USER
+      - LIGHTS_PASSWORD
+    depends_on:
+      - db
+    restart: unless-stopped
   db:
     image: lights-db:latest
     build:
@@ -58,6 +92,9 @@ volumes:
     name: lights-db-data
 
 networks:
+  frontend:
+    driver: bridge
+    name: lights-frontend
   backend:
     driver: bridge
     name: lights-backend
