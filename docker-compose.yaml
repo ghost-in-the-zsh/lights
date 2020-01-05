@@ -9,10 +9,17 @@ services:
     hostname: db
     container_name: lights-db
     ports:
-      # SECURITY WARNING: This is done for your convenience and allows
-      # remote DB administration via pgAdmin4; remember to *force* SSL/TLS
-      # on client connections on configs. To fully hide the DB service,
-      # (e.g. production envs) comment out the `ports` entry and rebuild.
+      # SECURITY WARNING: Normally, the database backend is expected to
+      # remain completely isolated in the `backend` network, but it's
+      # being exposed for this demo. This is done for your convenience
+      # and allows remote DB administration via `pgAdmin4`; remember to
+      # *force* SSL/TLS on client connections on configs, as this exposed
+      # port will bypass the reverse HTTP proxy and does not use SSL/TLS,
+      # but you still need to protect login credentials. To fully hide
+      # the DB service, (e.g. production envs) comment out the `ports`
+      # entry and rebuild. Only the `api` service, which is also in the
+      # `backend` network, should really get to talk to this service in
+      # a real production environment.
       - 8001:5432/tcp
     networks:
       backend:
