@@ -7,3 +7,8 @@ __pycache__/
 *.pyc
 .coverage
 .pyre_configuration
+
+*.srl
+*.csr
+*.crt
+*.key
