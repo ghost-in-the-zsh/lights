@@ -8,12 +8,12 @@ services:
     user: light:light
     hostname: api
     container_name: lights-api
-    ports:
-      # SECURITY WARNING: The service should be used through a reverse
-      # HTTP proxy (e.g. Apache, Nginx) that has SSL/TLS enabled. This
-      # will be done at a later time and changed to listen on localhost
-      # only.
-      - 8000:7000/tcp
+    # ports:
+    #   # SECURITY WARNING: The service should be used through a reverse
+    #   # HTTP proxy (e.g. Apache, Nginx) that has SSL/TLS enabled. This
+    #   # will be done at a later time and changed to listen on localhost
+    #   # only.
+    #   - 8000:7000/tcp
     networks:
       # SECURITY WARNING: This service is part of both the `frontend`
       # and `backend` networks, as it's intended to be the "bridge"
@@ -49,19 +49,19 @@ services:
       -c ssl_cert_file=/var/lib/postgresql/certs/postgres.crt
       -c ssl_key_file=/var/lib/postgresql/certs/postgres.key
       -c hba_file=/var/lib/postgresql/pg_hba.conf
-    ports:
-      # SECURITY WARNING: Normally, the database backend is expected to
-      # remain completely isolated in the `backend` network, but it's
-      # being exposed for this demo. This is done for your convenience
-      # and allows remote DB administration via `pgAdmin4`; remember to
-      # *force* SSL/TLS on client connections on configs, as this exposed
-      # port will bypass the reverse HTTP proxy and does not use SSL/TLS,
-      # but you still need to protect login credentials. To fully hide
-      # the DB service, (e.g. production envs) comment out the `ports`
-      # entry and rebuild. Only the `api` service, which is also in the
-      # `backend` network, should really get to talk to this service in
-      # a real production environment.
-      - 8001:5432/tcp
+    # ports:
+    #   # SECURITY WARNING: Normally, the database backend is expected to
+    #   # remain completely isolated in the `backend` network, but it's
+    #   # being exposed for this demo. This is done for your convenience
+    #   # and allows remote DB administration via `pgAdmin4`; remember to
+    #   # *force* SSL/TLS on client connections on configs, as this exposed
+    #   # port will bypass the reverse HTTP proxy and does not use SSL/TLS,
+    #   # but you still need to protect login credentials. To fully hide
+    #   # the DB service, (e.g. production envs) comment out the `ports`
+    #   # entry and rebuild. Only the `api` service, which is also in the
+    #   # `backend` network, should really get to talk to this service in
+    #   # a real production environment.
+    #   - 8001:5432/tcp
     networks:
       backend:
     volumes:
