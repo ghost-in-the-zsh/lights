@@ -42,6 +42,13 @@ services:
     user: postgres:postgres
     hostname: db
     container_name: lights-db
+    command:
+      # See `conf/gen-certs.sh` and
+      # https://www.postgresql.org/docs/current/runtime-config.html
+      -c ssl=on
+      -c ssl_cert_file=/var/lib/postgresql/certs/postgres.crt
+      -c ssl_key_file=/var/lib/postgresql/certs/postgres.key
+      -c hba_file=/var/lib/postgresql/pg_hba.conf
     ports:
       # SECURITY WARNING: Normally, the database backend is expected to
       # remain completely isolated in the `backend` network, but it's
@@ -60,7 +67,14 @@ services:
     volumes:
       - type: volume
         source: postgres-data
-        target: /var/lib/postgresql/data
+        target: /var/lib/postgresql/data/
+      - type: volume
+        source: postgres-conf
+        target: /var/lib/postgresql/
+      # See `conf/gen-certs.sh`
+      - type: volume
+        source: postgres-certs
+        target: /var/lib/postgresql/certs/
     environment:
       - LANG=en_US.UTF-8
       # Use whatever timezone you want here
@@ -119,6 +133,12 @@ volumes:
   postgres-data:
     driver: local
     name: lights-db-data
+  postgres-conf:
+    driver: local
+    name: lights-db-confs
+  postgres-certs:
+    driver: local
+    name: lights-postgres-certs
   proxy-logs:
     driver: local
     name: lights-proxy-logs
