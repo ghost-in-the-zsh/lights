@@ -1,5 +1,34 @@
 version: "3.7"
 services:
+  proxy:
+    image: lights-proxy:latest
+    build:
+      context: .
+      dockerfile: docker/proxy.Dockerfile
+    hostname: proxy
+    container_name: lights-proxy
+    networks:
+      - frontend
+      - backend
+    ports:
+      - 443:443/tcp
+    volumes:
+      - type: volume
+        source: proxy-logs
+        target: /usr/local/apache2/logs/
+      - type: volume
+        source: proxy-confs
+        target: /usr/local/apache2/conf/
+      # See `conf/gen-certs.sh`
+      - type: volume
+        source: proxy-certs
+        target: /usr/local/apache2/certs/
+    environment:
+      - LANG=en_US.UTF-8
+      - TZ=America/Denver
+    depends_on:
+      - api
+    restart: unless-stopped
   api:
     image: lights-api:latest
     build:
@@ -98,35 +127,6 @@ services:
       - LIGHTS_DB
       - LIGHTS_USER
       - LIGHTS_PASSWORD
-    restart: unless-stopped
-  proxy:
-    image: lights-proxy:latest
-    build:
-      context: .
-      dockerfile: docker/proxy.Dockerfile
-    hostname: proxy
-    container_name: lights-proxy
-    networks:
-      - frontend
-      - backend
-    ports:
-      - 443:443/tcp
-    volumes:
-      - type: volume
-        source: proxy-logs
-        target: /usr/local/apache2/logs/
-      - type: volume
-        source: proxy-confs
-        target: /usr/local/apache2/conf/
-      # See `conf/gen-certs.sh`
-      - type: volume
-        source: proxy-certs
-        target: /usr/local/apache2/certs/
-    environment:
-      - LANG=en_US.UTF-8
-      - TZ=America/Denver
-    depends_on:
-      - api
     restart: unless-stopped
 
 volumes:
