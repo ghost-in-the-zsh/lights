@@ -44,10 +44,10 @@ services:
     #   # only.
     #   - 8000:7000/tcp
     networks:
-      # SECURITY WARNING: This service is part of both the `frontend`
-      # and `backend` networks, as it's intended to be the "bridge"
-      # between client requests and the database backend.
-      frontend:
+      # SECURITY WARNING: This service is in the `backend` network only
+      # in order to ensure that all communication is done via the proxy
+      # and encrypted with SSL/TLS.
+      # frontend:
       backend:
     environment:
       - LANG=en_US.UTF-8
