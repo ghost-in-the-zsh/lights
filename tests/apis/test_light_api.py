@@ -290,11 +290,14 @@ class TestLightPutAPI(object):
         root_url = url_for(f'api.v{self.api_ver}.light.replace', id=id)
         response = self.client.put(
             root_url,
-            data=dict(
+            data=json.dumps(dict(
                 name=name,
                 is_powered_on=power_state
-            ),
-            headers=dict(Accept=self.mime_type)
+            )),
+            headers={
+                'Accept': self.mime_type,
+                'Content-Type': self.mime_type
+            }
         )
 
         assert response.status_code == HTTPStatus.NO_CONTENT.value
@@ -333,7 +336,10 @@ class TestLightPutAPI(object):
                 name='Wowee',
                 is_powered_on=True
             ),
-            headers=dict(Accept=self.mime_type)
+            headers={
+                'Accept': self.mime_type,
+                'Content-Type': self.mime_type
+            }
         )
 
         assert response.status_code == HTTPStatus.NOT_FOUND.value
@@ -344,8 +350,11 @@ class TestLightPutAPI(object):
         root_url = url_for(f'api.v{self.api_ver}.light.replace', id=id)
         response = self.client.put(
             root_url,
-            data=dict(),
-            headers=dict(Accept=self.mime_type)
+            data=None,
+            headers={
+                'Accept': self.mime_type,
+                'Content-Type': self.mime_type
+            }
         )
 
         assert response.status_code == HTTPStatus.BAD_REQUEST.value

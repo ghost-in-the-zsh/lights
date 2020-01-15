@@ -109,19 +109,18 @@ class LightAPI(FlaskView):
 
         [1] https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT
         '''
-        if not request.form:
-            abort(HTTPStatus.BAD_REQUEST, description='No data provided')
-
         try:
             light = get_light(id)
-            light.name = request.form.get('name')
-            light.is_powered_on = request.form.get('is_powered_on')
+            light.name = request.json.get('name')
+            light.is_powered_on = request.json.get('is_powered_on')
             update_light(light)
             return {}, HTTPStatus.NO_CONTENT
         except ObjectNotFoundError as e:
             abort(HTTPStatus.NOT_FOUND)
         except (ValidationError, DataIntegrityError) as e:
             abort(HTTPStatus.BAD_REQUEST, description=repr(e))
+        except TypeError as e:
+            abort(HTTPStatus.BAD_REQUEST, description=f'Data must be JSON-formatted.')
 
     @route('/<int:id>', methods=['PATCH'], endpoint='api.v0.light.update')
     def patch(self, id: int):
