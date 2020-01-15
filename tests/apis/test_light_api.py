@@ -397,7 +397,10 @@ class TestLightPatchAPI(object):
         response = self.client.patch(
             root_url,
             data=dict(name=name),
-            headers=dict(Accept=self.mime_type)
+            headers={
+                'Accept': self.mime_type,
+                'Content-Type': self.mime_type
+            }
         )
 
         assert response.status_code == HTTPStatus.NO_CONTENT.value
@@ -434,7 +437,10 @@ class TestLightPatchAPI(object):
         response = self.client.patch(
             root_url,
             data=dict(is_powered_on=power_state),
-            headers=dict(Accept=self.mime_type)
+            headers={
+                'Accept': self.mime_type,
+                'Content-Type': self.mime_type
+            }
         )
 
         assert response.status_code == HTTPStatus.NO_CONTENT.value
@@ -474,7 +480,10 @@ class TestLightPatchAPI(object):
                 name='Wowee',
                 is_powered_on=True
             ),
-            headers=dict(Accept=self.mime_type)
+            headers={
+                'Accept': self.mime_type,
+                'Content-Type': self.mime_type
+            }
         )
 
         assert response.status_code == HTTPStatus.NOT_FOUND.value
@@ -487,7 +496,10 @@ class TestLightPatchAPI(object):
         response = self.client.patch(
             root_url,
             data=dict(),
-            headers=dict(Accept=self.mime_type)
+            headers={
+                'Accept': self.mime_type,
+                'Content-Type': self.mime_type
+            }
         )
 
         assert response.status_code == HTTPStatus.BAD_REQUEST.value
