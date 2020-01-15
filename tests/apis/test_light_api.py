@@ -93,7 +93,10 @@ class TestLightGetAPI(object):
                 } for id in range(1, total+1)
             ]
         }
-        response = self.client.get(url, content_type=self.mime_type)
+        response = self.client.get(
+            url,
+            headers={'Accept': self.mime_type}
+        )
         actual = response.json
 
         assert response.status_code == HTTPStatus.OK.value
@@ -118,7 +121,10 @@ class TestLightGetAPI(object):
                 'is_powered_on': False
             }
         }
-        response = self.client.get(url, content_type=self.mime_type)
+        response = self.client.get(
+            url,
+            headers={'Accept': self.mime_type}
+        )
         actual = response.json
 
         assert response.status_code == HTTPStatus.OK.value
@@ -128,7 +134,10 @@ class TestLightGetAPI(object):
     @with_app_context
     def test_light_request_by_non_existent_positive_id_is_not_found(self):
         url = url_for(f'api.v{self.api_ver}.light.detail', id=10)
-        response = self.client.get(url, content_type=self.mime_type)
+        response = self.client.get(
+            url,
+            headers={'Accept': self.mime_type}
+        )
 
         assert response.status_code == HTTPStatus.NOT_FOUND.value
         assert response.content_type == self.mime_type
@@ -136,7 +145,10 @@ class TestLightGetAPI(object):
     @with_app_context
     def test_light_request_by_non_existent_negative_id_is_not_found(self):
         url = url_for(f'api.v{self.api_ver}.light.detail', id=-5)
-        response = self.client.get(url, content_type=self.mime_type)
+        response = self.client.get(
+            url,
+            headers={'Accept': self.mime_type}
+        )
 
         assert response.status_code == HTTPStatus.NOT_FOUND.value
         assert response.content_type == self.mime_type
@@ -495,7 +507,7 @@ class TestLightDeleteAPI(object):
         root_url = url_for(f'api.v{self.api_ver}.light.delete_all')
         response = self.client.delete(
             root_url,
-            headers=dict(Accept=self.mime_type)
+            headers={'Accept': self.mime_type}
         )
 
         assert response.status_code == HTTPStatus.NO_CONTENT.value
@@ -506,7 +518,7 @@ class TestLightDeleteAPI(object):
         root_url = url_for(f'api.v{self.api_ver}.light.delete', id=1)
         response = self.client.delete(
             root_url,
-            headers=dict(Accept=self.mime_type)
+            headers={'Accept': self.mime_type}
         )
 
         assert response.status_code == HTTPStatus.NO_CONTENT.value
@@ -517,7 +529,7 @@ class TestLightDeleteAPI(object):
         root_url = url_for(f'api.v{self.api_ver}.light.delete', id=10)
         response = self.client.delete(
             root_url,
-            headers=dict(Accept=self.mime_type)
+            headers={'Accept': self.mime_type}
         )
 
         assert response.status_code == HTTPStatus.NOT_FOUND.value
