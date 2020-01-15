@@ -61,8 +61,19 @@ A PostgreSQL database server used through an ORM (Object-Relational Mapper) impl
 
 This is a short example of how you can use the REST API.
 
+
+### Reading Objects: `GET` Requests
+
 ```bash
-$ curl -k -X GET https://localhost/api/v0/lights/ 2>/dev/null | python3 -m json.tool
+$ curl -k -i \
+    -H 'Accept: application/json' \
+    -X GET https://localhost/api/v0/lights/
+HTTP/1.0 200 OK
+Content-Type: application/json
+Content-Length: 200
+Server: Werkzeug/0.16.0 Python/3.7.5
+Date: Wed, 15 Jan 2020 11:21:46 GMT
+
 {
     "_meta": {
         "links": [
@@ -82,12 +93,64 @@ $ curl -k -X GET https://localhost/api/v0/lights/ 2>/dev/null | python3 -m json.
 For HTTP headers only use the `-I` option:
 
 ```bash
-$ curl -k -I -X GET https://localhost/api/v0/lights/
+$ curl -k -I \
+    -H 'Accept: application/json' \
+    -X GET https://localhost/api/v0/lights/
 HTTP/1.1 200 OK
-Date: Thu, 09 Jan 2020 09:31:24 GMT
+Date: Wed, 15 Jan 2020 11:24:17 GMT
 Server: Apache/2.4.41 (Unix) OpenSSL/1.1.1d
 Content-Type: application/json
 Content-Length: 117
+```
+
+
+### Creating Objects: `POST` Requests
+
+To create data, an HTTP `POST` request is to be used.
+
+```bash
+$ curl -k -i \
+    -H 'Content-Type: application/json' \
+    -H 'Accept: application/json' \
+    -X POST https://localhost/api/v0/lights/ \
+    -d '{"name": "Living Room", "is_powered_on": "false"}'
+HTTP/1.0 201 CREATED
+Content-Type: application/json
+Content-Length: 85
+Location: https://localhost/api/v0/lights/1
+Server: Werkzeug/0.16.0 Python/3.7.5
+Date: Wed, 15 Jan 2020 11:25:38 GMT
+
+{
+  "light": {
+    "id": 1,
+    "is_powered_on": false,
+    "name": "Living Room"
+  }
+}
+```
+
+And then, using the HTTP `Location` header, you can find the new location for the newly created resource.
+
+```bash
+$ curl -k \
+    -H 'Accept: application/json' \
+    -X GET https://localhost/api/v0/lights/1
+{
+    "light": {
+        "_meta": {
+            "links": [
+                {
+                    "href": "https://localhost/api/v0/lights/1",
+                    "rel": "self"
+                }
+            ]
+        },
+        "id": 1,
+        "is_powered_on": false,
+        "name": "Living Room"
+    }
+}
 ```
 
 
