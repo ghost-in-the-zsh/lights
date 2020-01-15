@@ -186,7 +186,6 @@ class TestLightPostAPI(object):
         )
 
         actual = response.json
-        print(response, actual)
         self_url = url_for(f'api.v{self.api_ver}.light.detail', id=actual['light']['id'])
         expected = {
             'light': {
