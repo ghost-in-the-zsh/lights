@@ -80,9 +80,11 @@ class LightAPI(FlaskView):
         includes the newly created object in the body.
         '''
         try:
-            light = create_light(**request.form)
+            light = create_light(**request.json)
         except (DataIntegrityError, ValidationError) as e:
             abort(HTTPStatus.BAD_REQUEST, description=repr(e))
+        except TypeError as e:
+            abort(HTTPStatus.BAD_REQUEST, description=f'Data must be JSON-formatted.')
 
         light_url = url_for('api.v0.light.detail', id=light.id)
         light_schema = LightSchema(exclude=('_meta',))    # _meta.link goes in header

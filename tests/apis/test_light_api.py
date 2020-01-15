@@ -7,6 +7,8 @@ introspection.
 
 # pylint: disable=no-member
 
+import json
+
 from typing import (
     Callable,
     Dict
@@ -193,8 +195,11 @@ class TestLightPostAPI(object):
 
         response = self.client.post(
             root_url,
-            data=data,
-            headers=dict(Accept=self.mime_type)
+            data=json.dumps(data),
+            headers={
+                'Accept': self.mime_type,
+                'Content-Type': self.mime_type
+            }
         )
 
         actual = response.json
@@ -222,7 +227,10 @@ class TestLightPostAPI(object):
         response = self.client.post(
             root_url,
             data=data,
-            headers=dict(Accept=self.mime_type)
+            headers={
+                'Accept': self.mime_type,
+                'Content-Type': self.mime_type
+            }
         )
 
         assert response.status_code == HTTPStatus.BAD_REQUEST.value
@@ -238,7 +246,10 @@ class TestLightPostAPI(object):
         response = self.client.post(
             root_url,
             data=data,
-            headers=dict(Accept=self.mime_type)
+            headers={
+                'Accept': self.mime_type,
+                'Content-Type': self.mime_type
+            }
         )
 
         assert response.status_code == HTTPStatus.BAD_REQUEST.value
