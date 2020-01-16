@@ -62,48 +62,6 @@ A PostgreSQL database server used through an ORM (Object-Relational Mapper) impl
 This is a short example of how you can use the REST API.
 
 
-### Reading Objects: `GET` Requests
-
-```bash
-$ curl -k -i \
-    -H 'Accept: application/json' \
-    -X GET https://localhost/api/v0/lights/
-HTTP/1.0 200 OK
-Content-Type: application/json
-Content-Length: 200
-Server: Werkzeug/0.16.0 Python/3.7.5
-Date: Wed, 15 Jan 2020 11:21:46 GMT
-
-{
-    "_meta": {
-        "links": [
-            {
-                "href": "https://localhost/api/v0/lights/",
-                "rel": "self"
-            }
-        ],
-        "stats": {
-            "total_count": 0
-        }
-    },
-    "lights": []
-}
-```
-
-For HTTP headers only use the `-I` option:
-
-```bash
-$ curl -k -I \
-    -H 'Accept: application/json' \
-    -X GET https://localhost/api/v0/lights/
-HTTP/1.1 200 OK
-Date: Wed, 15 Jan 2020 11:24:17 GMT
-Server: Apache/2.4.41 (Unix) OpenSSL/1.1.1d
-Content-Type: application/json
-Content-Length: 117
-```
-
-
 ### Creating Objects: `POST` Requests
 
 To create data, an HTTP `POST` request is to be used.
@@ -130,7 +88,98 @@ Date: Wed, 15 Jan 2020 11:25:38 GMT
 }
 ```
 
-And then, using the HTTP `Location` header, you can find the new location for the newly created resource.
+The URL returned in the HTTP `Location` header shows where you can find the newly created resource.
+
+
+### Reading Objects: `GET` Requests
+
+To read data, a `GET` request is used. Different endpoints may provide different results. For example, we can get a list of all the objects by using the index URL:
+
+```bash
+$ curl -k -i \
+    -H 'Accept: application/json' \
+    -X GET https://localhost/api/v0/lights/
+HTTP/1.0 200 OK
+Content-Type: application/json
+Content-Length: 455
+Server: Werkzeug/0.16.0 Python/3.7.5
+Date: Thu, 16 Jan 2020 08:17:26 GMT
+
+{
+  "_meta": {
+    "links": [
+      {
+        "href": "https://localhost/api/v0/lights/",
+        "rel": "self"
+      }
+    ],
+    "stats": {
+      "total_count": 1
+    }
+  },
+  "lights": [
+    {
+      "_meta": {
+        "links": [
+          {
+            "href": "https://localhost/api/v0/lights/1",
+            "rel": "self"
+          }
+        ]
+      },
+      "id": 1,
+      "is_powered_on": false,
+      "name": "Living Room"
+    }
+  ]
+}
+```
+
+To get a single object, you append the object's ID:
+
+```bash
+$ curl -i -k \
+    -H 'Accept: application/json' \
+    -X GET https://localhost/api/v0/lights/1
+HTTP/1.0 200 OK
+Content-Type: application/json
+Content-Length: 239
+Server: Werkzeug/0.16.0 Python/3.7.5
+Date: Thu, 16 Jan 2020 08:20:48 GMT
+
+{
+  "light": {
+    "_meta": {
+      "links": [
+        {
+          "href": "https://localhost/api/v0/lights/1",
+          "rel": "self"
+        }
+      ]
+    },
+    "id": 1,
+    "is_powered_on": false,
+    "name": "Living Room"
+  }
+}
+```
+
+For HTTP headers only use the `-I` option instead of `-i`:
+
+```bash
+$ curl -k -I \
+    -X GET https://localhost/api/v0/lights/
+HTTP/1.1 200 OK
+Date: Wed, 15 Jan 2020 11:24:17 GMT
+Server: Apache/2.4.41 (Unix) OpenSSL/1.1.1d
+Content-Type: application/json
+Content-Length: 117
+```
+
+
+### Updating Objects: `PUT` Requests
+
+This request allows pre-existing objects to be updated *as a whole*, i.e. they must *fully*, not partially, replaced. This example shows how to update the light we `POST`ed in the first example.
 
 ```bash
 $ curl -k \
@@ -150,6 +199,80 @@ $ curl -k \
         "is_powered_on": false,
         "name": "Living Room"
     }
+}
+```
+
+The `PUT` request is structured in the same way as a `POST` request, so the only real change here is the HTTP method/verb used. The JSON string sent as data changes all the object's fields at once.
+
+```bash
+$ curl -k \
+    -H 'Content-Type: application/json' \
+    -H 'Accept: application/json' \
+    -X PUT https://localhost/api/v0/lights/1 \
+    -d '{"name": "Basement", "is_powered_on": "false"}'
+HTTP/1.0 204 NO CONTENT
+Content-Type: application/json
+Server: Werkzeug/0.16.0 Python/3.7.5
+Date: Thu, 16 Jan 2020 08:07:30 GMT
+```
+
+Getting the object again shows that it was updated succesfully:
+
+```bash
+$ curl -k \
+    -H 'Accept: application/json' \
+    -X GET https://localhost/api/v0/lights/1
+{
+  "light": {
+    "_meta": {
+      "links": [
+        {
+          "href": "https://localhost/api/v0/lights/1",
+          "rel": "self"
+        }
+      ]
+    },
+    "id": 1,
+    "is_powered_on": false,
+    "name": "Basement"
+  }
+}
+```
+
+
+### Deleting Objects: `DELETE` Requests
+
+Objects can be deleted individually, by object ID, or all at once, based on endpoint. For example, to delete all of them, we target the index URL:
+
+```bash
+$ curl -i -k \
+    -H 'Accept: application/json' \
+    -X DELETE https://localhost/api/v0/lights
+HTTP/1.0 204 NO CONTENT
+Content-Type: application/json
+Server: Werkzeug/0.16.0 Python/3.7.5
+Date: Thu, 16 Jan 2020 08:33:30 GMT
+```
+
+We can confirm they've been deleted.
+
+```bash
+$ curl -k \
+    -H 'Accept: application/json' \
+    -X GET https://localhost/api/v0/lights
+{
+  "_meta": {
+    "links": [
+      {
+        "href": "https://localhost/api/v0/lights/",
+        "rel": "self"
+      }
+    ],
+    "stats": {
+      "total_count": 0
+    }
+  },
+  "lights": []
 }
 ```
 
