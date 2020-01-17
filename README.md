@@ -5,8 +5,7 @@ A "simple" Flask-based web application that allows you to manage lights and thei
 This is a relatively simple project for demo purposes. It's intended to show a practical and working example of how you can architect a software system in a way that allows it to grow more easily while reducing the likelihood of major refactoring efforts down the road. The application is architected as follows:
 
 * Reverse HTTP proxy for SSL/TLS encryption
-* RESTful API service
-* Web-GUI service (WIP)
+* Web service (RESTful API + GUI)
 * Business logic
 * Database backend
 

@@ -35,10 +35,10 @@ WORKDIR ${HOME}
 #   to prevent root ownership;
 # * this command does NOT understand ENV vars, so USER must be hard-coded
 COPY --chown=light:light ./app/ app
-COPY --chown=light:light ./utils/api/ utils
+COPY --chown=light:light ./utils/web/ utils
 COPY --chown=light:light ./migrations/ migrations
 COPY --chown=light:light ./wsgi.py wsgi.py
-COPY --chown=light:light ./conf/api/uwsgi.ini conf/uwsgi.ini
+COPY --chown=light:light ./conf/web/uwsgi.ini conf/uwsgi.ini
 COPY --chown=light:light ./requirements.txt requirements.txt
 
 RUN python -m pip install --user --requirement requirements.txt

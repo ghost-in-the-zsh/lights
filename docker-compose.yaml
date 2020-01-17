@@ -27,16 +27,16 @@ services:
       - LANG=en_US.UTF-8
       - TZ=America/Denver
     depends_on:
-      - api
+      - web
     restart: unless-stopped
-  api:
-    image: lights-api:latest
+  web:
+    image: lights-web:latest
     build:
       context: .
-      dockerfile: docker/api.Dockerfile
+      dockerfile: docker/web.Dockerfile
     user: light:light
-    hostname: api
-    container_name: lights-api
+    hostname: web
+    container_name: lights-web
     # ports:
     #   # SECURITY WARNING: The service should be used through a reverse
     #   # HTTP proxy (e.g. Apache, Nginx) that has SSL/TLS enabled. This
@@ -87,7 +87,7 @@ services:
     #   # port will bypass the reverse HTTP proxy and does not use SSL/TLS,
     #   # but you still need to protect login credentials. To fully hide
     #   # the DB service, (e.g. production envs) comment out the `ports`
-    #   # entry and rebuild. Only the `api` service, which is also in the
+    #   # entry and rebuild. Only the `web` service, which is also in the
     #   # `backend` network, should really get to talk to this service in
     #   # a real production environment.
     #   - 8001:5432/tcp
@@ -123,7 +123,7 @@ services:
       - POSTGRES_PASSWORD
       # SECURITY WARNING: These provide app-specific database and user/role
       # credentials. These must also match in containers that want to
-      # connect to the database backend (e.g. `api` service).
+      # connect to the database backend (e.g. `web` service).
       - LIGHTS_DB
       - LIGHTS_USER
       - LIGHTS_PASSWORD
