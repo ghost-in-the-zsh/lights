@@ -10,10 +10,12 @@ and fail with errors.
 from invoke import Collection
 
 from . import (
+    app,
     test,
     report
 )
 
 ns = Collection()
+ns.add_collection(app)
 ns.add_collection(test)
 ns.add_collection(report)
