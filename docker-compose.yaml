@@ -8,8 +8,8 @@ services:
     hostname: proxy
     container_name: lights-proxy
     networks:
-      - frontend
-      - backend
+      frontend:
+      backend:
     ports:
       - 443:443/tcp
     volumes:
