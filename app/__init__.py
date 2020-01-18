@@ -27,6 +27,7 @@ from app.common.handlers import (
     http_500_handler,
     http_501_handler
 )
+from app.debug import toolbar
 from app.models import (
     db as sqla,
     migrate,
@@ -48,6 +49,7 @@ def create_app(config_name: Text) -> Flask:
     sqla.init_app(app)
     migrate.init_app(app, sqla)
     marshmallow.init_app(app)   # must be init'ed *after* the SQLAlchemy ORM
+    toolbar.init_app(app)
 
     # register REST API
     prefix = f'/api/v{api.version}/lights'

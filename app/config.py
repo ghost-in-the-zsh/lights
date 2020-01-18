@@ -33,6 +33,13 @@ class ProductionConfig:
     SQLALCHEMY_DATABASE_URI = '%(dialect)s+%(driver)s://%(user)s:%(password)s@%(host)s:%(port)s/%(name)s' % DATABASE_CONFIG
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    # Flask-DebugToolbar
+    # https://flask.palletsprojects.com/en/1.1.x/config/
+    DEBUG_TB_ENABLED = False
+    DEBUG_TB_PROFILER_ENABLED = False
+    DEBUG_TB_INTERCEPT_REDIRECTS = False
+    DEBUG_TB_TEMPLATE_EDITOR_ENABLED = False
+
     # Flask-WTForms
     # https://flask-wtf.readthedocs.io/en/stable/config.html
     # SECURITY WARNING: web form protection against CSRF attacks!
@@ -47,6 +54,12 @@ class DevelopmentConfig(ProductionConfig):
     # Flask-SQLAlchemy overrides
     SQLALCHEMY_DATABASE_URI = 'postgres+psycopg2://lights:devel@localhost:5432/lights'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+
+    # Flask-DebugToolbar overrides
+    DEBUG_TB_ENABLED = True
+    DEBUG_TB_PROFILER_ENABLED = True
+    # DEBUG_TB_INTERCEPT_REDIRECTS = True
+    DEBUG_TB_TEMPLATE_EDITOR_ENABLED = True
 
 
 class TestingConfig(ProductionConfig):
