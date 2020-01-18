@@ -18,3 +18,7 @@ class HomeView(FlaskView):
     @route('/', methods=['GET'], endpoint='gui.home.index')
     def index(self):
         return render_template('common/index.html')
+
+    @route('/about', methods=['GET'], endpoint='gui.home.about')
+    def about(self):
+        return render_template('common/about.html')
