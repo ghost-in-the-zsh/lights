@@ -1,0 +1,17 @@
+{% extends "common/base.html" %}
+{% block content %}
+<div class="lead text-center">
+    <h1>Herp Derp</h1>
+    <p>
+        <strong>I <a target="_blank" href="https://www.dictionary.com/browse/derp">derped</a> up.
+        Derps need fixing.
+        <a href="mailto:ray.l.rivera@gmail.com">Tell someone</a> about this derp.</strong>
+    </p>
+    <p>
+        <img class="img-fluid mx-auto d-block" src="{{ url_for('static', filename='images/500-deku.gif') }}">
+    </p>
+    <p>
+        Yes, this is an <strong>HTTP-500: Internal Server Error</strong>.
+    </p>
+</div>
+{% endblock %}

@@ -1,6 +1,14 @@
-'''The error handlers module.'''
+'''The error handlers module.
 
-from flask import Response      # type annotation
+Simple error handlers for HTTP responses are defined here along with
+appropriate HTML templates and HTTP response codes.
+'''
+
+from flask import (
+    request,
+    render_template,
+    Response        # type annotation
+)
 from werkzeug.exceptions import HTTPException
 
 from app.common.responses import error_response as api_error_response
@@ -60,6 +68,24 @@ def http_501_handler(error: HTTPException):
     return _handle_error(error)
 
 
+def _wants_json_response() -> bool:
+    '''Returns `True` if a JSON-based response was requested by the client.
+
+    The HTTP standard allows servers and clients to negotiate the content
+    types they're willing/able to work with. The user agent can request
+    `Content-Type` it wants in response with the HTTP `Accept` header.
+
+    For example, the server can reply with:
+
+        `Accept: text/html`
+        `Accept: application/json`
+    '''
+    mimetypes = request.accept_mimetypes
+    return mimetypes['application/json'] >= mimetypes['text/html']
+
+
 def _handle_error(error: HTTPException) -> Response:
     '''Implementation function to actually handle the error.'''
-    return api_error_response(error)
+    if _wants_json_response():
+        return api_error_response(error)
+    return render_template(f'common/errors/{error.code}.html'), error.code
