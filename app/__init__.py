@@ -36,6 +36,7 @@ from app.models import (
 from app.apis import current_api as api
 from app.guis import (
     HomeView,
+    LightView
 )
 
 
@@ -58,6 +59,7 @@ def create_app(config_name: Text) -> Flask:
 
     # register GUI frontend
     HomeView.register(app, route_prefix='/', route_base='/', **view_options)
+    LightView.register(app, route_prefix='/lights', route_base='/', **view_options)
 
     # register error handlers
     app.register_error_handler(HTTPStatus.BAD_REQUEST, http_400_handler)

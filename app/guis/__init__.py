@@ -11,6 +11,8 @@ from flask_classful import (
     route
 )
 
+from .light import LightView
+
 
 class HomeView(FlaskView):
     '''View for the application's home page.'''
