@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="lights">
+
+    <title>Lights: Demo App</title>
+    <link rel="canonical" href="https://localhost/">
+
+    <!-- Bootstrap core CSS -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/bootstrap/bootstrap.min.css') }}"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    >
+    <!-- no integrity attr provided by Google... -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    >
+    <!--
+      Custom CSS styles for this template; may override core CSS. The
+      `integrity` hash *must* be re-calculated when modified. To do so
+      run this command:
+
+        `openssl dgst -sha384 -binary app.css | openssl base64 -A`
+
+      and append the result after the `sha384-` prefix string below.
+    -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/app/app.css') }}"
+      integrity="sha384-JR6OpSOp3hY9Txfm0uFTSOZ+TPcLqFn89DEukcQy06WuaNxR1mhUnVky5WDMl2Hj"
+      crossorigin="anonymous"
+    >
+  </head>
+  <body>
+    <!-- Navigation bar -->
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+      <a class="navbar-brand" href="{{ url_for('gui.home.index') }}">Lights</a>
+    </nav>
+    <!-- #END# .navbar -->
+
+    <!-- Main page content -->
+    <main role="main" class="container">
+      <!-- .app-content -->
+      <div class="app-content">
+        <!-- Child template -->
+        {% block content %}{% endblock %}
+        <!-- #END# Child template -->
+      </div>
+      <!-- #END# .app-content -->
+    </main>
+    <!-- #END# .container -->
+
+    <!-- Main footer bar -->
+    <nav class="footer navbar navbar-expand-md navbar-dark bg-dark fixed-bottom small text-light">
+      App ver. {{ config.VERSION }}
+    </nav>
+    <!-- #END# Main footer bar -->
+
+    <!-- Other JavaScript -->
+    <!-- jQuery first, then Bootstrap 4 bundle (includes Popper); dependency chain -->
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.slim.js"
+      integrity="sha256-BTlTdQO9/fascB1drekrDVkaKd9PkwBymMlHOiG+qLI="
+      crossorigin="anonymous">
+    </script>
+    <script
+      src="{{ url_for('static', filename='js/bootstrap/bootstrap.bundle.min.js') }}"
+      integrity="sha384-xrRywqdh3PHs8keKZN+8zzc5TX0GRTLCcmivcbNJWm2rs5C8PRhcEn3czEjhAO9o"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="{{ url_for('static', filename='js/bootstrap/ext/bootstrap-confirmation.min.js') }}"
+      integrity="sha384-xuVUVTD31/szOe4NDD44c/9NDN3HIcG8tRprxLSGPfsrUUNeNINN0nPxlP6CT7Tk"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      $('[data-toggle=confirmation]').confirmation({
+          rootSelector: '[data-toggle=confirmation]'
+      });
+      $('[data-toggle=tooltip]').tooltip();
+    </script>
+  </body>
+</html>

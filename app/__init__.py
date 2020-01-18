@@ -33,11 +33,14 @@ from app.models import (
     marshmallow
 )
 from app.apis import current_api as api
+from app.guis import (
+    HomeView,
+)
 
 
 def create_app(config_name: Text) -> Flask:
     # setup app
-    app = Flask(__name__, instance_path=INSTANCE_DIR)
+    app = Flask(__name__, instance_path=INSTANCE_DIR, template_folder='static/templates')
     app.config.from_object(app_configs[config_name])
     app.url_map.strict_slashes = False
 
@@ -50,6 +53,9 @@ def create_app(config_name: Text) -> Flask:
     prefix = f'/api/v{api.version}/lights'
     view_options = dict(trailing_slash=False, method_dashified=True)
     api.LightAPI.register(app, route_prefix=prefix, route_base='/', **view_options)
+
+    # register GUI frontend
+    HomeView.register(app, route_prefix='/', route_base='/', **view_options)
 
     # register error handlers
     app.register_error_handler(HTTPStatus.BAD_REQUEST, http_400_handler)

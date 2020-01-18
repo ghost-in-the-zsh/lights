@@ -25,6 +25,22 @@ INSTANCE_DIR = join(dirname(BASE_DIR), 'instance')
 # See: conf/uwsgi.ini
 FLASK_ENV = environ.get('FLASK_ENV', 'production')
 
+# SECURITY WARNING: avoid making the key length value too small!
+# Generally, longer keys provide more cryptographic strength, but
+# they also incur higher performance costs.
+# See: app/config.py
+PRIVATE_KEY_LENGTH = 128
+
+# SECURITY WARNING: web forms are protected by CSRF tokens!
+# These tokens are used to protect against CSRF attacks and they
+# are set to expire after the time period below. Since these
+# are for user-facing web-UI forms, there should be enough time
+# for the user to work with the form without the token expiring.
+#
+# Expired tokens cause form validation to fail and any updates
+# sent by the users to be rejected.
+CSRF_TOKEN_VALIDITY_SECS = 300  # 300 secs = 5 mins
+
 # Name length limits for database objects.
 MIN_NAME_LENGTH = 3
 MAX_NAME_LENGTH = 32
