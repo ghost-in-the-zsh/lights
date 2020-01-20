@@ -31,7 +31,7 @@ class LightView(FlaskView):
     @route('/', methods=['GET'], endpoint='gui.light.get_all')
     def index(self):
         '''Get all `Light` objects.'''
-        abort(HTTPStatus.NOT_IMPLEMENTED)
+        return render_template('lights/light_list.html')
 
     @route('/<int:id>', methods=['GET'], endpoint='gui.light.detail')
     def get(self, id: int):
