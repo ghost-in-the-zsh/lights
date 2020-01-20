@@ -23,7 +23,6 @@ from app.common.errors import (
     ObjectNotFoundError,
     DataIntegrityError
 )
-from app.models.light import Light
 
 
 class LightView(FlaskView):
