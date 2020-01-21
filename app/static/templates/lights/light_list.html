@@ -38,11 +38,14 @@
         const CLASS_ON = 'list-group-item-primary';
         const CLASS_OFF = 'list-group-item-dark';
         $.each(json.lights, function (key, light) {
+          const STATE = (light.is_powered_on ? 'On' : 'Off');
           const CLASS = (light.is_powered_on ? CLASS_ON : CLASS_OFF);
           lights.append(
             '<a ' +
               'class="mb-1 list-group-item list-group-item-action ' +
               CLASS + ' " ' +
+              'data-toggle="tooltip" data-placement="top" ' +
+              'title="Light is Powered ' + STATE + '"' +
               'href="' + GET_URL + light.id + '">' +
               light.name +
             '</a>'
