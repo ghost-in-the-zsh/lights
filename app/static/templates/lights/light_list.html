@@ -1,52 +1,56 @@
 {% extends "common/base.html" %}
 {% block content %}
-    <h1>Lights</h1>
-    <div id="lights-group" class="list-group"></div>
+  <h1>Lights</h1>
+  <div id="lights-group" class="list-group"></div>
 {% endblock %}
 
 {% block javascript %}
 <script>
-    // <!--
-    $(function () {
-        const GET_URL = "{{ url_for('api.v0.light.get_all', _external=True) }}";
-        $.ajax({
-            method: 'GET',
-            url: GET_URL,
-            headers: {
-                'Accept': 'application/json'
-            },
-            success: function (json) {
-                var lights = $('#lights-group');
+  // <!--
+  $(function () {
+    const GET_URL = "{{ url_for('api.v0.light.get_all', _external=True) }}";
+    $.ajax({
+      method: 'GET',
+      url: GET_URL,
+      headers: {
+        'Accept': 'application/json'
+      },
+      success: function (json) {
+        var lights = $('#lights-group');
 
-                if (json.lights.length === 0) {
-                    const NEW_URL = "{{ url_for('gui.light.request_new') }}";
-                    lights.html(
-                        '<p class="lead"><a ' +
-                        '   href="' + NEW_URL + '"' +
-                        '>Add</a> some lights first.</p>'
-                    );
-                    return;
-                }
+        if (json.lights.length === 0) {
+          const NEW_URL = "{{ url_for('gui.light.request_new') }}";
+          lights.html(
+            '<p class="lead"><a ' +
+            '  href="' + NEW_URL + '"' +
+            '>Add</a> some lights first.</p>'
+          );
+          return;
+        }
 
-                // We can't generate the detail URL for `href` below with
-                // `url_for('gui.light.detail', id=light.id)` because, at
-                // the time this template is processed server-side, there
-                // is no defined `light` instance yet and no retrievable
-                // ID value. This callback execs on the client-side and
-                // must first wait for this request to return with data
-                // for a defined/usable object.
-                $.each(json.lights, function (key, light) {
-                    lights.append(
-                        '<a ' +
-                            'class="mb-1 list-group-item list-group-item-action"' +
-                            'href="' + GET_URL + light.id + '">' +
-                            light.name +
-                        '</a>'
-                    );
-                });
-            }
+        // We can't generate the detail URL for `href` below with
+        // `url_for('gui.light.detail', id=light.id)` because, at
+        // the time this template is processed server-side, there
+        // is no defined `light` instance yet and no retrievable
+        // ID value. This callback execs on the client-side and
+        // must first wait for this request to return with data
+        // for a defined/usable object.
+        const CLASS_ON = 'list-group-item-primary';
+        const CLASS_OFF = 'list-group-item-dark';
+        $.each(json.lights, function (key, light) {
+          const CLASS = (light.is_powered_on ? CLASS_ON : CLASS_OFF);
+          lights.append(
+            '<a ' +
+              'class="mb-1 list-group-item list-group-item-action ' +
+              CLASS + ' " ' +
+              'href="' + GET_URL + light.id + '">' +
+              light.name +
+            '</a>'
+          );
         });
+      }
     });
-    // -->
+  });
+  // -->
 </script>
 {% endblock %}
