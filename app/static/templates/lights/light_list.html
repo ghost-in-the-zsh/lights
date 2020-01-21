@@ -7,10 +7,10 @@
 {% block javascript %}
 <script>
     $(function () {
-        const URL = "{{ url_for('api.v0.light.get_all', _external=True) }}";
+        const GET_URL = "{{ url_for('api.v0.light.get_all', _external=True) }}";
         $.ajax({
             method: 'GET',
-            url: URL,
+            url: GET_URL,
             headers: {
                 'Accept': 'application/json'
             },
@@ -27,7 +27,7 @@
                     lights.append(
                         '<a ' +
                             'class="mb-1 list-group-item list-group-item-action"' +
-                            'href="' + URL + light.id + '">' +
+                            'href="' + GET_URL + light.id + '">' +
                             light.name +
                         '</a>'
                     );
