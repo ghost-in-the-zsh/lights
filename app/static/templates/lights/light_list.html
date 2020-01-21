@@ -15,6 +15,18 @@
                 'Accept': 'application/json'
             },
             success: function (json) {
+                var lights = $('#lights-group');
+
+                if (json.lights.length === 0) {
+                    const NEW_URL = "{{ url_for('gui.light.request_new') }}";
+                    lights.html(
+                        '<p class="lead"><a ' +
+                        '   href="' + NEW_URL + '"' +
+                        '>Add</a> some lights first.</p>'
+                    );
+                    return;
+                }
+
                 // We can't generate the detail URL for `href` below with
                 // `url_for('gui.light.detail', id=light.id)` because, at
                 // the time this template is processed server-side, there
@@ -22,7 +34,6 @@
                 // ID value. This callback execs on the client-side and
                 // must first wait for this request to return with data
                 // for a defined/usable object.
-                var lights = $('#lights-group');
                 $.each(json.lights, function (key, light) {
                     lights.append(
                         '<a ' +
