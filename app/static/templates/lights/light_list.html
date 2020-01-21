@@ -6,6 +6,7 @@
 
 {% block javascript %}
 <script>
+    // <!--
     $(function () {
         const GET_URL = "{{ url_for('api.v0.light.get_all', _external=True) }}";
         $.ajax({
@@ -46,5 +47,6 @@
             }
         });
     });
+    // -->
 </script>
 {% endblock %}
