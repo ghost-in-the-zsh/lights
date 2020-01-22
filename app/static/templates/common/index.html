@@ -2,25 +2,27 @@
 {% block content %}
 <h1>Lights Demo</h1>
 <p class="lead">
-    This is a "simple" <a href="https://flask.palletsprojects.com/en/1.1.x/">Flask</a>-based
-    demo web application that allows you to manage lights and their on/off
-    power states.
+  This is a "simple" <a href="https://flask.palletsprojects.com/en/1.1.x/">Flask</a>-based
+  demo web application that allows you to manage lights and their on/off
+  power states.
 </p>
 <div class="row justify-content-center">
-    <div class="card" style="width: 32rem;">
-        <div class="card-body">
-            <h5 class="card-title">Lights</h5>
-            <p class="card-text">
-                Work with lights and their associated data, performing
-                the basic CRUD operations, i.e. <strong>C</strong>reate,
-                <strong>R</strong>ead, <strong>U</strong>pdate, and
-                <strong>D</strong>elete that are common across
-                information systems.
-            </p>
-            <a
-                href="{{ url_for('gui.light.get_all') }}"
-                class="btn btn-primary">Let's Try It</a>
-        </div>
+  <div class="card" style="width: 32rem;">
+    <div class="card-body">
+      <h5 class="card-title">Lights</h5>
+      <p class="card-text">
+        Work with lights and their associated data, performing
+        the basic CRUD operations, i.e. <strong>C</strong>reate,
+        <strong>R</strong>ead, <strong>U</strong>pdate, and
+        <strong>D</strong>elete that are common across
+        information systems.
+      </p>
+      <a
+        href="{{ url_for('gui.light.get_all') }}"
+        class="btn btn-primary">
+        Let's Try It
+      </a>
     </div>
+  </div>
 </div>
 {% endblock %}

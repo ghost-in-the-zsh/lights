@@ -1,17 +1,20 @@
 {% extends "common/base.html" %}
 {% block content %}
 <div class="lead text-center">
-    <h1>End of Line</h1>
-    <p>
-        <a href="{{ url_for('main.index') }}">
-            <img class="img-fluid mx-auto d-block" src="{{ url_for('static', filename='images/404-aqua.gif') }}">
-        </a>
-    </p>
-    <p>
-        You look lost. It's dangerous to go alone! <a href="{{ url_for('main.index') }}">Take this.</a>
-    </p>
-    <p>
-        Yes, this is an <strong>HTTP-404: Not Found</strong>.
-    </p>
+  <h1>End of Line</h1>
+  <p>
+    <a href="{{ url_for('main.index') }}">
+      <img
+        class="img-fluid mx-auto d-block"
+        src="{{ url_for('static', filename='images/404-aqua.gif') }}">
+    </a>
+  </p>
+  <p>
+    You look lost. It's dangerous to go alone!
+    <a href="{{ url_for('main.index') }}">Take this.</a>
+  </p>
+  <p>
+    Yes, this is an <strong>HTTP-404: Not Found</strong>.
+  </p>
 </div>
 {% endblock %}
