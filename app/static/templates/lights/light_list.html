@@ -2,7 +2,13 @@
 {% block content %}
   <h1>Lights</h1>
   <div id="lights-group" class="list-group"></div>
+  <img
+    id="ajax-loader"
+    class="img-fluid mx-auto d-block"
+    src="{{ url_for('static', filename='images/loader.gif') }}">
 {% endblock %}
+
+{% include "common/dialogs/modal.html" %}
 
 {% block javascript %}
 <script>
@@ -16,8 +22,10 @@
         'Accept': 'application/json'
       },
       success: function (json) {
-        var lights = $('#lights-group');
+        // got server response, so we hide the loading animation
+        $('#ajax-loader').css('visibility', 'hidden');
 
+        var lights = $('#lights-group');
         if (json.lights.length === 0) {
           const NEW_URL = "{{ url_for('gui.light.request_new') }}";
           lights.html(
@@ -51,6 +59,23 @@
             '</a>'
           );
         });
+      },
+      error: function (httpResponse, statusString, errorString) {
+        // got server response, so we hide the loading animation
+        $('#ajax-loader').css('visibility', 'hidden');
+
+        var json = httpResponse.responseJSON;
+        $('#dialog-box-header').html(json.error_text);
+        $('#dialog-box-body').html(json.description);
+
+        $('#dialog-box').modal('toggle');
+
+        const HOME_URL = "{{ url_for('gui.home.index', _external=True) }}";
+        $('#lights-group').html(
+          '<p class="lead">' +
+          'There was an error. Please, try refreshing or go back ' +
+          '<a href="' + HOME_URL + '">home</a>.</p>'
+        );
       }
     });
   });
