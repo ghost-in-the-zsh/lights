@@ -14,10 +14,9 @@
 <script>
   // <!--
   $(function () {
-    const GET_URL = "{{ url_for('api.v0.light.get_all', _external=True) }}";
     $.ajax({
       method: 'GET',
-      url: GET_URL,
+      url: "{{ url_for('api.v0.light.get_all', _external=True) }}",
       headers: {
         'Accept': 'application/json'
       },
@@ -43,6 +42,7 @@
         // ID value. This callback execs on the client-side and
         // must first wait for this request to return with data
         // for a defined/usable object.
+        const GET_URL = "{{ url_for('gui.light.get_all', _external=True) }}";
         const CLASS_ON = 'list-group-item-primary';
         const CLASS_OFF = 'list-group-item-dark';
         $.each(json.lights, function (key, light) {
