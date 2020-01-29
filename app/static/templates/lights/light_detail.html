@@ -1,0 +1,93 @@
+{% extends "common/base.html" %}
+{% block content %}
+<h1>Light-{{ form.id.data }}: {{ form.name.data }}</h1>
+<!--
+If you prefer to not use JavaScript/JQuery/AJAX, then you can always use
+the HTML <form>, making sure it points to the correct endpoint, using the
+correct method, and including the hidden fields. (Note they're still
+getting processed by the Jinja2 template engine.)
+
+This, however, implies that you'd be duplicating some code on the server-
+side to manage the request on a different non-API endpoint. It's a
+tradeoff. Always.
+
+<form action="{{ url_for('gui.light.update', id=form.id.data) }}" method="POST">
+  {{ form.hidden_tag() }}
+  {{ form.id(type="hidden") }}
+-->
+<div class="form-group row">
+  {{ form.name.label(class_="col-sm-2 col-form-label") }}
+  {{ form.name(class_="form-control col-sm-10", placeholder="What's the name for, or location of, this object?") }}
+</div>
+<div class="form-group row">
+  {{ form.is_powered_on.label(class_="col-sm-2 col-form-label form-check-label") }}
+  {{ form.is_powered_on(class_="form-control form-check-input col-sm-3") }}
+</div>
+<div class="form-group row float-right">
+  {{ form.save_button(class_="btn btn-primary mr-1") }}
+  {{ form.delete_button(class_="btn btn-danger", formnovalidate=True) }}
+</div>
+<!-- </form> -->
+{% endblock %}
+
+{% include "common/dialogs/modal.html" %}
+
+{% block javascript %}
+<script>
+  // <!--
+  $(function () {
+    $('#{{ form.save_button.id }}').bind('click', updateLightData);
+    $('#{{ form.delete_button.id }}').bind('click', deleteLight);
+  });
+
+  function updateLightData() {
+    var light = {
+      name: $('#{{ form.name.id }}').val(),
+      is_powered_on: $('#{{ form.is_powered_on.id }}').is(':checked')
+    };
+    $.ajax({
+      method: 'PUT',
+      url: "{{ url_for('api.v0.light.replace', id=form.id.data, _external=True) }}",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      data: JSON.stringify(light),
+      success: function (json) {
+        // You could refresh the page with `location.reload();`, but
+        // why do that in this case? The dialog approach is more
+        // efficient and it's also a better user experience.
+        $('#dialog-box-header').html('OK');
+        $('#dialog-box-body').html('Update successful');
+        $('#dialog-box').modal('toggle');
+      },
+      error: function (httpResponse, statusString, errorString) {
+        var json = httpResponse.responseJSON;
+        $('#dialog-box-header').html(json.error_text);
+        $('#dialog-box-body').html(json.description);
+        $('#dialog-box').modal('toggle');
+      }
+    });
+  }
+
+  function deleteLight() {
+    $.ajax({
+      method: 'DELETE',
+      url: "{{ url_for('api.v0.light.delete', id=form.id.data, _external=True) }}",
+      headers: {
+        'Accept': 'application/json'
+      },
+      success: function (json) {
+        window.location.replace("{{ url_for('gui.light.get_all') }}");
+      },
+      error: function (httpResponse, statusString, errorString) {
+        var json = httpResponse.responseJSON;
+        $('#dialog-box-header').html(json.error_text);
+        $('#dialog-box-body').html(json.description);
+        $('#dialog-box').modal('toggle');
+      }
+    });
+  }
+  // -->
+</script>
+{% endblock %}

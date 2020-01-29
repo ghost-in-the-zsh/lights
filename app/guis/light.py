@@ -23,6 +23,8 @@ from app.common.errors import (
     ObjectNotFoundError,
     DataIntegrityError
 )
+from app.services.light import get_light
+from app.forms.light import LightForm
 
 
 class LightView(FlaskView):
@@ -36,7 +38,12 @@ class LightView(FlaskView):
     @route('/<int:id>', methods=['GET'], endpoint='gui.light.detail')
     def get(self, id: int):
         '''Get one `Light` object.'''
-        abort(HTTPStatus.NOT_IMPLEMENTED)
+        try:
+            light = get_light(id)
+            form = LightForm(obj=light)
+            return render_template('lights/light_detail.html', form=form)
+        except ObjectNotFoundError:
+            abort(HTTPStatus.NOT_FOUND)
 
     @route('/create', methods=['GET'], endpoint='gui.light.request_new')
     def create_requested(self):
