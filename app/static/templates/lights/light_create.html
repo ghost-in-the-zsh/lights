@@ -1,0 +1,61 @@
+{% extends "common/base.html" %}
+{% block content %}
+<h1>New Light</h1>
+<div class="form-group row">
+  {{ form.name.label(class_="col-sm-2 col-form-label") }}
+  {{ form.name(class_="form-control col-sm-10", placeholder="What's the name for, or location of, this object?") }}
+</div>
+<div class="form-group row">
+  {{ form.is_powered_on.label(class_="col-sm-2 col-form-label form-check-label") }}
+  {{ form.is_powered_on(class_="form-control form-check-input col-sm-3") }}
+</div>
+<div class="form-group row float-right">
+  {{ form.save_button(class_="btn btn-primary mr-1") }}
+  {{ form.cancel_button(class_="btn btn-secondary", formnovalidate=True) }}
+</div>
+{% endblock %}
+
+{% include "common/dialogs/modal.html" %}
+
+{% block javascript %}
+<script>
+  // <!--
+  $(function () {
+    $('#{{ form.save_button.id }}').bind('click', sendLightData);
+    $('#{{ form.cancel_button.id }}').bind('click', backtrackHistory);
+  });
+
+  function sendLightData() {
+    $.ajax({
+      method: 'POST',
+      url: "{{ url_for('api.v0.light.submit_new', _external=True) }}",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      data: JSON.stringify({
+        name: $('#{{ form.name.id }}').val(),
+        is_powered_on: $('#{{ form.is_powered_on.id }}').is(':checked')
+      }),
+      success: function (json, status, httpResponse) {
+        // We don't use `httpResponse.getResponseHeader('Location')` here
+        // b/c that's an API link, not a GUI link. Since we can't use
+        // `url_for` for a detail view on a non-existent ID, but do know the
+        // app's URL patterns, this workaround is effective.
+        location.replace("{{ url_for('gui.light.get_all') }}" + json.light.id);
+      },
+      error: function (httpResponse, statusString, errorString) {
+        var json = httpResponse.responseJSON;
+        $('#dialog-box-header').html(json.error_text);
+        $('#dialog-box-body').html(json.description);
+        $('#dialog-box').modal('toggle');
+      }
+    });
+  }
+
+  function backtrackHistory() {
+    history.back();
+  }
+  // -->
+</script>
+{% endblock %}

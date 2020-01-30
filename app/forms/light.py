@@ -38,3 +38,4 @@ class LightForm(FlaskForm):
         'data-title': 'Are you sure?',
         'data-content': 'This is permanent and cannot be undone!'
     })
+    cancel_button = SubmitField('Cancel')

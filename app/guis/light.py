@@ -51,11 +51,15 @@ class LightView(FlaskView):
     @route('/create', methods=['GET'], endpoint='gui.light.request_new')
     def create_requested(self):
         '''Gets the new `Light` form.'''
-        abort(HTTPStatus.NOT_IMPLEMENTED)
+        form = LightForm()
+        return render_template('lights/light_create.html', form=form)
 
     @route('/create', methods=['POST'], endpoint='gui.light.submit_new')
     def create_submitted(self):
         '''Process the submitted form for a new `Light`.'''
+        # This method would need an implementation if the current
+        # AJAX-based implementation is replaced by an HTML <form>
+        # that actually targets this endpoint.
         abort(HTTPStatus.NOT_IMPLEMENTED)
 
     @route('/<int:id>', methods=['POST'], endpoint='gui.light.update')
