@@ -23,7 +23,10 @@ from app.common.errors import (
     ObjectNotFoundError,
     DataIntegrityError
 )
-from app.services.light import get_light
+from app.services.light import (
+    get_light,
+    get_light_list
+)
 from app.forms.light import LightForm
 
 
@@ -33,7 +36,7 @@ class LightView(FlaskView):
     @route('/', methods=['GET'], endpoint='gui.light.get_all')
     def index(self):
         '''Get all `Light` objects.'''
-        return render_template('lights/light_list.html')
+        return render_template('lights/light_list.html', lights=get_light_list())
 
     @route('/<int:id>', methods=['GET'], endpoint='gui.light.detail')
     def get(self, id: int):

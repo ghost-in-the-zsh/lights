@@ -1,84 +1,36 @@
 {% extends "common/base.html" %}
 {% block content %}
-  <h1>Lights</h1>
-  <div id="lights-group" class="list-group"></div>
-  <img
-    id="ajax-loader"
-    class="img-fluid mx-auto d-block"
-    src="{{ url_for('static', filename='images/loader.gif') }}">
-{% endblock %}
-
-{% include "common/dialogs/modal.html" %}
-
-{% block javascript %}
-<script>
-  // <!--
-  $(function () {
-    $.ajax({
-      method: 'GET',
-      url: "{{ url_for('api.v0.light.get_all', _external=True) }}",
-      headers: {
-        'Accept': 'application/json'
-      },
-      success: function (json) {
-        // got server response, so we hide the loading animation
-        $('#ajax-loader').css('visibility', 'hidden');
-
-        var lights = $('#lights-group');
-        if (json.lights.length === 0) {
-          const NEW_URL = "{{ url_for('gui.light.request_new') }}";
-          lights.html(
-            '<p class="lead"><a ' +
-            '  href="' + NEW_URL + '"' +
-            '>Add</a> some lights first.</p>'
-          );
-          return;
-        }
-
-        // We can't generate the detail URL for `href` below with
-        // `url_for('gui.light.detail', id=light.id)` because, at
-        // the time this template is processed server-side, there
-        // is no defined `light` instance yet and no retrievable
-        // ID value. This callback execs on the client-side and
-        // must first wait for this request to return with data
-        // for a defined/usable object.
-        const GET_URL = "{{ url_for('gui.light.get_all', _external=True) }}";
-        const CLASS_ON = 'list-group-item-primary';
-        const CLASS_OFF = 'list-group-item-dark';
-        $.each(json.lights, function (key, light) {
-          const STATE = (light.is_powered_on ? 'On' : 'Off');
-          const CLASS = (light.is_powered_on ? CLASS_ON : CLASS_OFF);
-          lights.append(
-            '<a ' +
-              'class="mb-1 list-group-item list-group-item-action ' +
-              CLASS + ' " ' +
-              'data-toggle="tooltip" data-placement="top" ' +
-              'title="Light is Powered ' + STATE + '"' +
-              'href="' + GET_URL + light.id + '">' +
-              light.name +
-            '</a>'
-          );
-        });
-      },
-      error: function (httpResponse, statusString, errorString) {
-        // got server response, so we hide the loading animation
-        $('#ajax-loader').css('visibility', 'hidden');
-
-        var json = httpResponse.responseJSON;
-        $('#dialog-box-header').html(json.error_text);
-        $('#dialog-box-body').html(json.description);
-
-        $('#dialog-box').modal('toggle');
-
-        const HOME_URL = "{{ url_for('gui.home.index', _external=True) }}";
-        $('#lights-group').html(
-          '<p class="lead">' +
-          'There was an error. Please, try refreshing or go back ' +
-          '<a href="' + HOME_URL + '">home</a>.</p>'
-        );
-      }
-    });
-  });
-  // -->
-</script>
+<h1>Lights</h1>
+{% if lights %}
+<div class="row mb-2 ml-0">
+  <a
+    class="btn btn-secondary button-sm"
+    href="{{ url_for('gui.light.request_new') }}"
+    role="button">
+    Create
+  </a>
+</div>
+<div class="list-group">
+  {% for light in lights %}
+  <a
+    {% if light.is_powered_on %}
+    class="mb-1 list-group-item list-group-item-action list-group-item-primary"
+    title="Light is On"
+    {% else %}
+    class="mb-1 list-group-item list-group-item-action list-group-item-dark"
+    title="Light is Off"
+    {% endif %}
+    data-toggle="tooltip" data-placement="top"
+    href="{{ url_for('gui.light.detail', id=light.id) }}">
+    {{ light.name }}
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<p class="lead">
+  <a
+    href="{{ url_for('gui.light.request_new') }}">
+    Create</a> some lights first.
+</p>
+{% endif %}
 {% endblock %}
