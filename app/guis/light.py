@@ -36,7 +36,17 @@ class LightView(FlaskView):
     @route('/', methods=['GET'], endpoint='gui.light.get_all')
     def index(self):
         '''Get all `Light` objects.'''
-        return render_template('lights/light_list.html', lights=get_light_list())
+        # Could've sorted at the DB level with:
+        #   `db.session.query(Light).order_by(Light.name).all()`
+        # but chose to preserve the abstraction given by the services
+        # layer.
+        return render_template(
+            'lights/light_list.html',
+            lights=sorted(
+                get_light_list(),
+                key=lambda light: light.name
+            )
+        )
 
     @route('/<int:id>', methods=['GET'], endpoint='gui.light.detail')
     def get(self, id: int):
