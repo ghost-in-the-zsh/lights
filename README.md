@@ -70,7 +70,7 @@ $ curl -k -i \
     -H 'Content-Type: application/json' \
     -H 'Accept: application/json' \
     -X POST https://localhost/api/v0/lights/ \
-    -d '{"name": "Living Room", "is_powered_on": "false"}'
+    -d '{"name": "Living Room", "is_powered_on": false}'
 HTTP/1.0 201 CREATED
 Content-Type: application/json
 Content-Length: 85
@@ -208,7 +208,7 @@ $ curl -k \
     -H 'Content-Type: application/json' \
     -H 'Accept: application/json' \
     -X PUT https://localhost/api/v0/lights/1 \
-    -d '{"name": "Basement", "is_powered_on": "false"}'
+    -d '{"name": "Basement", "is_powered_on": false}'
 HTTP/1.0 204 NO CONTENT
 Content-Type: application/json
 Server: Werkzeug/0.16.0 Python/3.7.5
