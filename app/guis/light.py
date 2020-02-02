@@ -65,9 +65,11 @@ class LightView(FlaskView):
     @route('/<int:id>', methods=['POST'], endpoint='gui.light.update')
     def update(self, id: int):
         '''Update an existing `Light`.'''
+        # Updates are currently handled via the API endpoint, not the GUI.
         abort(HTTPStatus.NOT_IMPLEMENTED)
 
     @route('/<int:id>/delete', methods=['POST'], endpoint='gui.light.delete')
     def delete(self, id: int):
         '''Deletes a `Light` from the system.'''
+        # Deletes are currently handled via the API endpoint, not the GUI.
         abort(HTTPStatus.NOT_IMPLEMENTED)
