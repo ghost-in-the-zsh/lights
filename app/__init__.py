@@ -15,6 +15,8 @@ from flask import (
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 
+from flask_swagger_ui import get_swaggerui_blueprint as get_openapi_blueprint
+
 from app.settings import INSTANCE_DIR
 from app.config import app_configs
 from app.common.handlers import (
@@ -60,6 +62,16 @@ def create_app(config_name: Text) -> Flask:
     # register GUI frontend
     HomeView.register(app, route_prefix='/', route_base='/', **view_options)
     LightView.register(app, route_prefix='/lights', route_base='/', **view_options)
+
+    # register REST API docs
+    prefix = '/api/docs'
+    apibp = get_openapi_blueprint(
+        prefix,
+        f'/static/openapi-spec.json',
+        config={'app_name': 'Lights'},
+        blueprint_name='gui.home.apidocs'
+    )
+    app.register_blueprint(apibp, url_prefix=prefix)
 
     # register error handlers
     app.register_error_handler(HTTPStatus.BAD_REQUEST, http_400_handler)

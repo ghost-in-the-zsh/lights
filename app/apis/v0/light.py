@@ -146,7 +146,7 @@ class LightAPI(FlaskView):
             delete_light_list()
             return {}, HTTPStatus.NO_CONTENT
         except DataIntegrityError as e:
-            abort(HTTPStatus.BAD_REQUEST, description=repr(e))
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, description=repr(e))
 
 
     @route('/<int:id>', methods=['DELETE'], endpoint='api.v0.light.delete')
@@ -180,4 +180,4 @@ class LightAPI(FlaskView):
         except ObjectNotFoundError as e:
             abort(HTTPStatus.NOT_FOUND, description=repr(e))
         except DataIntegrityError as e:
-            abort(HTTPStatus.BAD_REQUEST, description=repr(e))
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, description=repr(e))

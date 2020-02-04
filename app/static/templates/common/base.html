@@ -66,8 +66,16 @@
             </a>
             <div class="dropdown-menu" aria-labelledby="menu-dropdown-docs">
               <a
-                  class="dropdown-item"
-                  href="{{ url_for('gui.home.about') }}">About</a>
+                class="dropdown-item"
+                href="{{ url_for('gui.home.about') }}">
+                About
+              </a>
+              <a
+                class="dropdown-item"
+                target="_blank"
+                href="{{ url_for('gui.home.apidocs.show') }}">
+                REST API
+              </a>
               <a
                 class="dropdown-item"
                 target="_blank"
