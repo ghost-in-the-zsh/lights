@@ -9,8 +9,6 @@ This is a relatively simple project for demo purposes. It's intended to show a p
 * Business logic
 * Database backend
 
-Some micro-services are still a **Work In Progress** and are marked as such in this file.
-
 Each service container is defined by its own `<service>.Dockerfile` under the `docker/` directory and orchestrated by the `docker-compose.yaml` file in the project's root directory.
 
 The project's structure and organization will appear overkill for such a simple system, but it's intended to work as a template or reference guide of sorts for your own larger projects, whether hobby or professional.
@@ -25,7 +23,7 @@ A brief description of the micro-services is next.
 
 The reverse HTTP proxy service is responsible for providing SSL/TLS encryption and security for client-server connections using HTTPS. The application itself is not responsible for encrypting communication over the network. We use well-established methods and protocols for this purpose for one simple reason: "Rolling out your own crypto" is a dumb idea and you will do it wrong.
 
-The reverse proxy passes client requests along to the API service in the backend
+The reverse proxy passes client requests along to the web service in the backend.
 
 
 ### RESTful API
@@ -33,7 +31,7 @@ The reverse proxy passes client requests along to the API service in the backend
 A publicly exposed service responsible for implementing the system's functionality. It implements the necessary logic to handle HTTP requests, its different methods (e.g. `GET`, `POST`, etc.), and client responses. It uses JSON as the data transfer format and is intended to be human and machine readable.
 
 
-### Web-GUI Service (WIP)
+### Web-GUI Service
 
 The human and browser-friendly view of the system using HTML, CSS, and JavaScript. This part of the system is expected to rely on JavaScript to handle requests between the client and the server. This is important because HTML forms do not support HTTP methods beyond `GET` and `POST`, making operations like `DELETE` impossible from it when specifically trying to contact the API. In other words, the following:
 
@@ -43,7 +41,7 @@ The human and browser-friendly view of the system using HTML, CSS, and JavaScrip
 </form>
 ```
 
-will not work as expected because it is not valid HTML5.
+will not work; it is not valid HTML5.
 
 
 ### Business Logic
@@ -134,6 +132,8 @@ Date: Thu, 16 Jan 2020 08:17:26 GMT
 }
 ```
 
+The `_meta` data is provided by the API to make the client's life easier (e.g. programmatic navigation) and uses the `_` prefix to communicate that these data, and its nested children, are not part of the models themselves.
+
 To get a single object, you append the object's ID:
 
 ```bash
@@ -178,7 +178,7 @@ Content-Length: 117
 
 ### Updating Objects: `PUT` Requests
 
-This request allows pre-existing objects to be updated *as a whole*, i.e. they must *fully*, not partially, replaced. This example shows how to update the light we `POST`ed in the first example.
+This request allows pre-existing objects to be updated *as a whole*, i.e. they must be *fully*, not partially, replaced. This example shows how to update the light we `POST`ed in the first example.
 
 ```bash
 $ curl -k \
@@ -201,7 +201,7 @@ $ curl -k \
 }
 ```
 
-The `PUT` request is structured in the same way as a `POST` request, so the only real change here is the HTTP method/verb used. The JSON string sent as data changes all the object's fields at once.
+The `PUT` request is structured in the same way as a `POST` request, so the only real change here is the HTTP method/verb used and the object's ID that's included in the path. The JSON string sent as data changes all the object's fields at once.
 
 ```bash
 $ curl -k \
@@ -339,7 +339,7 @@ From the same session in which the environment variables were `export`ed, and in
 $ docker-compose up --build -d
 [...]
 Creating lights-db ... done
-Creating lights-api ... done
+Creating lights-web ... done
 Creating lights-proxy ... done
 ```
 
@@ -353,10 +353,10 @@ To destroy the containers, images, volumes, networks, etc., run:
 ```bash
 $ docker-compose down --rmi all -v
 Stopping lights-proxy ... done
-Stopping lights-api   ... done
+Stopping lights-web   ... done
 Stopping lights-db    ... done
 Removing lights-proxy ... done
-Removing lights-api   ... done
+Removing lights-web   ... done
 Removing lights-db    ... done
 Removing network lights-backend
 Removing network lights-frontend
@@ -367,7 +367,7 @@ Removing volume lights-proxy-logs
 Removing volume lights-proxy-conf
 Removing volume lights-proxy-certs
 Removing image lights-db:latest
-Removing image lights-api:latest
+Removing image lights-web:latest
 Removing image lights-proxy:latest
 ```
 
