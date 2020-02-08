@@ -45,6 +45,12 @@ CSRF_TOKEN_VALIDITY_SECS = 300  # 300 secs = 5 mins
 MIN_NAME_LENGTH = 3
 MAX_NAME_LENGTH = 32
 
+# Yes, the falsey spelling is ok:
+# https://english.stackexchange.com/questions/109996/is-it-falsy-or-falsey
+TRUTHY = (True, 'True', 'true', 't')
+FALSEY = (False, 'False', 'false', 'f')
+
+
 # Configuration data for using the Postgres database server. Most of the
 # data is stored in environment variables for simplicity. For `docker secrets`
 # you'd need to set up a docker swarm.

@@ -11,6 +11,7 @@ from flask_marshmallow.fields import (
 )
 from marshmallow import fields
 
+from app.settings import TRUTHY, FALSEY
 from app.models.light import Light
 
 
@@ -25,8 +26,8 @@ class LightSchema(ModelSchema):
     #
     # [1] https://stackoverflow.com/a/55892116/4594973
     is_powered_on = fields.Boolean(
-        truthy=(True, 'True', 'true'),      # FIXME: Need to dedup this..
-        falsey=(False, 'False', 'false')    # from Light model module
+        truthy=TRUTHY,
+        falsey=FALSEY
     )
 
     class Meta:

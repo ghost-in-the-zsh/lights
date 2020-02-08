@@ -17,7 +17,9 @@ from sqlalchemy.orm import validates
 
 from app.settings import (
     MIN_NAME_LENGTH,
-    MAX_NAME_LENGTH
+    MAX_NAME_LENGTH,
+    TRUTHY,
+    FALSEY
 )
 from app.models import db
 from app.common.validators import (
@@ -137,10 +139,10 @@ def _try_to_bool(value: Any) -> bool:
     This function is intended to process "boolean" data sent by clients
     as JSON strings as well as the expected internal `bool` types.
     '''
-    if value in (True, 'True', 'true'):
+    if value in TRUTHY:
         return True
 
-    if value in (False, 'False', 'false'):
+    if value in FALSEY:
         return False
 
     return None

@@ -97,7 +97,7 @@ class TestLightModel(object):
 
     @with_app_context
     def test_light_power_state_truthy_values_pass(self):
-        for index, state in enumerate((True, 'True', 'true')):
+        for index, state in enumerate((True, 'True', 'true', 't')):
             self.session.add(Light(
                 name=f'Name-{index}',   # make names unique to avoid PK violations
                 is_powered_on=state
@@ -106,7 +106,7 @@ class TestLightModel(object):
 
     @with_app_context
     def test_light_power_state_falsey_values_pass(self):
-        for index, state in enumerate((False, 'False', 'false')):
+        for index, state in enumerate((False, 'False', 'false', 'f')):
             self.session.add(Light(
                 name=f'Name-{index}',   # make names unique to avoid PK violations
                 is_powered_on=state
@@ -116,7 +116,7 @@ class TestLightModel(object):
     @with_app_context
     def test_light_power_state_unexpected_value_raises_validation_error(self):
         with pytest.raises(ValidationError):
-            for index, state in enumerate(('T', 't', '1', 'Yes', 'yes', 'Y', 'y', 'F', 'f', '0', 'No', 'no', 'N', 'n', None)):
+            for index, state in enumerate(('T', '1', 'Yes', 'yes', 'Y', 'y', 'F', '0', 'No', 'no', 'N', 'n', None)):
                 self.session.add(Light(
                     name=f'Name-{index}',   # make names unique to avoid PK violations
                     is_powered_on=state
