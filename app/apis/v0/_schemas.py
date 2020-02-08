@@ -9,15 +9,32 @@ from flask_marshmallow.fields import (
     URLFor,
     Hyperlinks
 )
-from marshmallow import fields
+from marshmallow import (
+    fields,
+    validate
+)
 
-from app.settings import TRUTHY, FALSEY
+from app.settings import (
+    TRUTHY,
+    FALSEY,
+    MIN_NAME_LENGTH,
+    MAX_NAME_LENGTH
+)
 from app.models.light import Light
 
 
 class LightSchema(ModelSchema):
     '''A schema to manage `Light` (de)serialization into/from JSON.'''
 
+    class Meta:
+        model = Light
+        exclude = ('_is_powered_on',)   # See above.
+
+    name = fields.String(
+        validate=[
+            validate.Length(min=MIN_NAME_LENGTH, max=MAX_NAME_LENGTH)
+        ]
+    )
     # The model's private `_is_powered_on` field needs to be overriden so
     # that it can be presented by its property name, `is_powered_on`, to
     # clients. The private field also needs to be excluded to prevent name
@@ -29,10 +46,6 @@ class LightSchema(ModelSchema):
         truthy=TRUTHY,
         falsey=FALSEY
     )
-
-    class Meta:
-        model = Light
-        exclude = ('_is_powered_on',)   # See above.
 
     # allow programmatic API discovery and navigation
     _meta = Hyperlinks({
