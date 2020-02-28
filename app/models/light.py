@@ -31,6 +31,7 @@ from app.common.validators import (
 
 class Light(db.Model):
     __tablename__ = 'light'
+    __table_args__ = {'schema': 'public'}
 
     _validators = {
         'name': [

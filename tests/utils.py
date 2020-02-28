@@ -50,7 +50,7 @@ def setup_lights(app: Flask) -> None:
         # a `.create_all()` call, which would cause any attempts to re-
         # create existing tables to fail.
         engine = db.engine
-        if not engine.dialect.has_table(engine, Light.__tablename__):
+        if not engine.dialect.has_table(engine, Light.__table__.name, Light.__table__.schema):
             Light.__table__.create(engine)
 
         for id in range(1, 3+1):

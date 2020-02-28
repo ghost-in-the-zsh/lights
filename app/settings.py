@@ -4,8 +4,8 @@ Some of the values in this module are used to configure Flask
 application instances. (See: config.py)
 '''
 
-from os import environ
-from os.path import abspath, join, dirname
+from os import environ, listdir
+from os.path import abspath, join, dirname, isdir
 
 
 # This version string is for informational purposes only (e.g. show in
@@ -65,3 +65,27 @@ DATABASE_CONFIG = {
     'dialect': 'postgres',
     'driver': 'psycopg2'
 }
+
+
+# This tuple builds a list of all the Python packages under the `models`
+# package. These are associated with Postgres schemas in the database
+# backend. Although SQLite does not support schemas (in the Postgres
+# sense of the term), we must ensure something similar exists in SQLite
+# for unit tests to work correctly. In our app's case, there're no sub-
+# packages, so we include `public` as a default non-empty tuple when
+# we fail to find packages under `models`, but you'll definitely have
+# component-specific packages in larger apps, and organizing those under
+# database schemas will be useful in the long-term.
+#
+# This is a unit test-specific workaround to find schemas in SQLite. For
+# more, see the top-level `__init__.py` file.
+#
+# NOTE: Postgres schemas should be named after their associated Python
+# packages to keep things organized. There should be a 1:1 relationship
+# between Python package names under the `models` package and Postgres
+# schemas containing the backing objects (e.g. model-specific tables).
+DATABASE_SCHEMAS = tuple((
+    # get directories under `models` that are not private
+    f for f in listdir(join(BASE_DIR, 'models'))
+    if not f.startswith('_') and isdir(join(BASE_DIR, 'models', f))
+)) or ('public',)
