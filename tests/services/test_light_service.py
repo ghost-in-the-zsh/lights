@@ -12,7 +12,8 @@ from app.settings import (
 from app.common.errors import (
     ObjectNotFoundError,
     InvalidPropertyError,
-    ModelValidationError
+    ModelValidationError,
+    UniqueObjectExpectedError
 )
 from app.services.light import (
     get_light_list,
@@ -89,6 +90,17 @@ class TestLightService(object):
     def test_nonexistent_negative_light_id_raises_object_not_found_error(self):
         with pytest.raises(ObjectNotFoundError):
             get_light(id=-1)
+
+    @with_app_context
+    def test_lax_search_criteria_raises_unique_object_expected_error(self):
+        # Modify the in-memory database to make sure we can match several objects later
+        for light in get_light_list():
+            light.is_powered_on = False
+            update_light(light)
+
+        # This will now match more than a single light
+        with pytest.raises(UniqueObjectExpectedError):
+            get_light(is_powered_on=False)
 
     @with_app_context
     def test_update_light_is_ok(self, id: int=1, name: Text='Living Room'):

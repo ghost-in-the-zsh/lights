@@ -41,6 +41,7 @@ def get_light_list(**filters: Dict) -> List[Light]:
     if not filters:
         return Light.query.all()
 
+    _try_remap_fields(filters)
     try:
         return Light.query.filter_by(**filters).all()
     except InvalidRequestError as e:
@@ -60,6 +61,7 @@ def get_light(**filters: Dict) -> Optional[Light]:
 
     :raises InvalidPropertyError: One or more filters do not exist as model field(s).
     '''
+    _try_remap_fields(filters)
     try:
         return Light.query.filter_by(**filters).one()
     except NoResultFound as e:
@@ -159,3 +161,22 @@ def _light_exists(light_id: int) -> bool:
     '''
     session = db.session
     return session.query(Light.id).filter_by(id=light_id).scalar() is not None
+
+
+def _try_remap_fields(filters: Dict) -> None:
+    '''Map public-facing field names to private field names.
+
+    When the `services` module is being used and filters/kwargs passed
+    in, it's the public field names that are expected to be used. However,
+    this causes searches to fail on the query b/c those work with the
+    Python-defined `Column` fields, but some of those fields are protected
+    by property methods.
+
+    For the search to work correctly, we re-assign the public field name
+    to the private instance field name when necessary.
+    '''
+    # XXX: Is there a better way to handle this so that no
+    # remapping is needed?
+    if 'is_powered_on' in filters:
+        filters['_is_powered_on'] = filters['is_powered_on']
+        del filters['is_powered_on']
