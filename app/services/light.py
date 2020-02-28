@@ -67,7 +67,7 @@ def create_light(**data: Dict) -> Optional[Light]:
     :raises DataIntegrityError: The dictionary data violates database
     integrity constraints.
 
-    :raises ValidationError: The dictionary data violates validation rules.
+    :raises ModelValidationError: The dictionary data violates validation rules.
     '''
     light = Light(**data)
     session = db.session
@@ -75,7 +75,7 @@ def create_light(**data: Dict) -> Optional[Light]:
         session.add(light)
         session.commit()
         return light
-    except (IntegrityError, StatementError) as e: # let client handle `ValidationError`
+    except (IntegrityError, StatementError) as e: # let caller handle `ModelValidationError`
         session.rollback()
         raise DataIntegrityError(f'Light creation failed: {data}. {repr(e)}') from e
 
@@ -88,7 +88,7 @@ def update_light(light: Light) -> None:
     :raises DataIntegrityError: The `Light` data violates database
     integrity constraints.
 
-    :raises ValidationError: The dictionary data violates validation rules.
+    :raises ModelValidationError: The dictionary data violates validation rules.
 
     :raises ObjectNotFoundError: The object to be updated does not exist.
     '''
@@ -96,7 +96,7 @@ def update_light(light: Light) -> None:
     try:
         session.add(light)
         session.commit()
-    except (IntegrityError, StatementError) as e: # let client handle `ValidationError`
+    except (IntegrityError, StatementError) as e: # let caller handle `ModelValidationError`
         session.rollback()
         raise DataIntegrityError(f'Light {light.id} failed to update.') from e
 

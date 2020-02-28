@@ -12,7 +12,7 @@ from app.settings import (
     MIN_NAME_LENGTH,
     MAX_NAME_LENGTH
 )
-from app.common.errors import ValidationError
+from app.common.errors import ModelValidationError
 from app.models import db
 from app.models.light import Light
 
@@ -56,27 +56,27 @@ class TestLightModel(object):
         )
 
     @with_app_context
-    def test_light_creation_without_data_raises_validation_error(self):
-        with pytest.raises(ValidationError):
+    def test_light_creation_without_data_raises_model_validation_error(self):
+        with pytest.raises(ModelValidationError):
             self.session.add(Light())
             self.session.commit()
 
     @with_app_context
-    def test_light_creation_without_name_raises_validation_error(self):
-        with pytest.raises(ValidationError):
+    def test_light_creation_without_name_raises_model_validation_error(self):
+        with pytest.raises(ModelValidationError):
             self.session.add(Light(is_powered_on=True))
             self.session.commit()
 
     @with_app_context
-    def test_light_creation_without_power_state_raises_validation_error(self):
-        with pytest.raises(ValidationError):
+    def test_light_creation_without_power_state_raises_model_validation_error(self):
+        with pytest.raises(ModelValidationError):
             self.session.add(Light(name='Light-00'))
             self.session.commit()
 
     @with_app_context
-    def test_light_name_below_min_length_raises_validation_error(self):
+    def test_light_name_below_min_length_raises_model_validation_error(self):
         light = Light.query.filter_by(id=1).one()
-        with pytest.raises(ValidationError):
+        with pytest.raises(ModelValidationError):
             light.name = 'a' * (MIN_NAME_LENGTH-1)
 
     @with_app_context
@@ -85,9 +85,9 @@ class TestLightModel(object):
         light.name = 'a' * MIN_NAME_LENGTH
 
     @with_app_context
-    def test_light_name_above_max_length_raises_validation_error(self):
+    def test_light_name_above_max_length_raises_model_validation_error(self):
         light = Light.query.filter_by(id=1).one()
-        with pytest.raises(ValidationError):
+        with pytest.raises(ModelValidationError):
             light.name = 'a' * (MAX_NAME_LENGTH+1)
 
     @with_app_context
@@ -114,8 +114,8 @@ class TestLightModel(object):
             self.session.commit()
 
     @with_app_context
-    def test_light_power_state_unexpected_value_raises_validation_error(self):
-        with pytest.raises(ValidationError):
+    def test_light_power_state_unexpected_value_raises_model_validation_error(self):
+        with pytest.raises(ModelValidationError):
             for index, state in enumerate(('T', '1', 'Yes', 'yes', 'Y', 'y', 'F', '0', 'No', 'no', 'N', 'n', None)):
                 self.session.add(Light(
                     name=f'Name-{index}',   # make names unique to avoid PK violations

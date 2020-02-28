@@ -1,6 +1,6 @@
 import pytest
 
-from app.common.errors import ValidationError
+from app.common.errors import ModelValidationError
 from app.common.validators import (
     MinLengthValidator,
     MaxLengthValidator,
@@ -40,14 +40,14 @@ class TestMinLengthValidator(object):
         validator = MinLengthValidator(min_length=5)
         validator.validate(['a'] * 5)
 
-    def test_below_minimum_length_string_raises_validation_error(self):
+    def test_below_minimum_length_string_raises_model_validation_error(self):
         validator = MinLengthValidator(min_length=5)
-        with pytest.raises(ValidationError):
+        with pytest.raises(ModelValidationError):
             validator.validate('a' * 4)
 
-    def test_below_minimum_length_iterable_raises_validation_error(self):
+    def test_below_minimum_length_iterable_raises_model_validation_error(self):
         validator = MinLengthValidator(min_length=5)
-        with pytest.raises(ValidationError):
+        with pytest.raises(ModelValidationError):
             validator.validate(['a'] * 4)
 
     def test_non_iterable_validation_argument_raises_type_error(self):
@@ -55,9 +55,9 @@ class TestMinLengthValidator(object):
         with pytest.raises(TypeError):
             validator.validate(2)
 
-    def test_none_type_validation_argument_raises_validation_error(self):
+    def test_none_type_validation_argument_raises_model_validation_error(self):
         validator = MinLengthValidator(min_length=0)
-        with pytest.raises(ValidationError):
+        with pytest.raises(ModelValidationError):
             validator.validate(None)
 
     def test_repr_result_matches(self):
@@ -98,14 +98,14 @@ class TestMaxLengthValidator(object):
         validator = MaxLengthValidator(max_length=5)
         validator.validate(['a'] * 5)
 
-    def test_beyond_maximum_length_string_raises_validation_error(self):
+    def test_beyond_maximum_length_string_raises_model_validation_error(self):
         validator = MaxLengthValidator(max_length=5)
-        with pytest.raises(ValidationError):
+        with pytest.raises(ModelValidationError):
             validator.validate('a' * 6)
 
-    def test_beyond_maximum_length_iterable_raises_validation_error(self):
+    def test_beyond_maximum_length_iterable_raises_model_validation_error(self):
         validator = MaxLengthValidator(max_length=5)
-        with pytest.raises(ValidationError):
+        with pytest.raises(ModelValidationError):
             validator.validate(['a'] * 6)
 
     def test_non_iterable_validation_argument_raises_type_error(self):
@@ -113,9 +113,9 @@ class TestMaxLengthValidator(object):
         with pytest.raises(TypeError):
             validator.validate(2)
 
-    def test_none_type_validation_argument_raises_validation_error(self):
+    def test_none_type_validation_argument_raises_model_validation_error(self):
         validator = MaxLengthValidator(max_length=1)
-        with pytest.raises(ValidationError):
+        with pytest.raises(ModelValidationError):
             validator.validate(None)
 
     def test_repr_result_matches(self):
@@ -138,9 +138,9 @@ class TestValueTypeValidator(object):
         validator = ValueTypeValidator(class_type=int)
         validator.validate(5)
 
-    def test_unexpected_value_class_type_raises_validation_error(self):
+    def test_unexpected_value_class_type_raises_model_validation_error(self):
         validator = ValueTypeValidator(class_type=str)
-        with pytest.raises(ValidationError):
+        with pytest.raises(ModelValidationError):
             validator.validate(5)
 
     def test_string_error_message_in_ctor_is_accepted(self):

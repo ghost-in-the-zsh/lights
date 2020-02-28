@@ -8,7 +8,7 @@ from abc import ABCMeta
 from typing import Iterable, Any, Text, ClassVar
 from inspect import isclass
 
-from app.common.errors import ValidationError
+from app.common.errors import ModelValidationError
 
 
 class _BaseValidator(metaclass=ABCMeta):
@@ -33,7 +33,7 @@ class MinLengthValidator(_BaseValidator):
 
     def validate(self, value: Iterable):
         if not value or len(value) < self.min_length:
-            raise ValidationError(f'{self.error_message}: {value}')
+            raise ModelValidationError(f'{self.error_message}: {value}')
 
     def __repr__(self):
         return "<{}: min_length={} error_message='{}'>".format(
@@ -59,7 +59,7 @@ class MaxLengthValidator(_BaseValidator):
 
     def validate(self, value: Iterable):
         if not value or len(value) > self.max_length:
-            raise ValidationError(f'{self.error_message}: {value}')
+            raise ModelValidationError(f'{self.error_message}: {value}')
 
     def __repr__(self):
         return "<{}: max_length={} error_message='{}'>".format(
@@ -83,7 +83,7 @@ class ValueTypeValidator(_BaseValidator):
 
     def validate(self, value: Any):
         if type(value) != self.class_type:
-            raise ValidationError(f'{self.error_message}: {type(value)}')
+            raise ModelValidationError(f'{self.error_message}: {type(value)}')
 
     def __repr__(self):
         return "<{}: class_type={} error_message='{}'>".format(

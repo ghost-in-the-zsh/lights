@@ -16,7 +16,7 @@ from flask_classful import (
 from app.common.errors import (
     ObjectNotFoundError,
     DataIntegrityError,
-    ValidationError
+    ModelValidationError
 )
 from app.services.light import (
     get_light_list,
@@ -81,7 +81,7 @@ class LightAPI(FlaskView):
         '''
         try:
             light = create_light(**request.json)
-        except (DataIntegrityError, ValidationError) as e:
+        except (DataIntegrityError, ModelValidationError) as e:
             abort(HTTPStatus.BAD_REQUEST, description=repr(e))
         except TypeError as e:
             abort(HTTPStatus.BAD_REQUEST, description=f'Data must be JSON-formatted.')
@@ -117,7 +117,7 @@ class LightAPI(FlaskView):
             return {}, HTTPStatus.NO_CONTENT
         except ObjectNotFoundError as e:
             abort(HTTPStatus.NOT_FOUND)
-        except (ValidationError, DataIntegrityError) as e:
+        except (ModelValidationError, DataIntegrityError) as e:
             abort(HTTPStatus.BAD_REQUEST, description=repr(e))
         except TypeError as e:
             abort(HTTPStatus.BAD_REQUEST, description='Data must be JSON-formatted.')

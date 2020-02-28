@@ -16,18 +16,23 @@ class DataIntegrityError(Exception):
     '''The data being used causes integrity issues.
 
     This is generally expected to happen if attempts to add invalid
-    data[1] to the database are made.
+    data[1] to the database are made. There might be some cases where
+    this error is more appropriate than a `ModelValidationError`.
 
-    [1] Data is invalid when it violates database integrity constraints
-        or field validation rules defined in the model.
+    [1] Data is invalid when it violates database integrity constraints.
+    '''
+    pass
+
     '''
     pass
 
 
-class ValidationError(Exception):
-    '''The data being processed is rejected as invalid.
+class ModelValidationError(Exception):
+    '''The data being processed is rejected by the model as invalid.
 
-    This error is generally raised by model field validators.
+    Normally, models process data on assignment. When a field receives an
+    assignment, all available validators for it are run, when defined.
+    These are expected to raise this error when their criteria is not met.
     '''
     pass
 

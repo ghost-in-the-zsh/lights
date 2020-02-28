@@ -12,7 +12,7 @@ from app.settings import (
 from app.common.errors import (
     ObjectNotFoundError,
     InvalidPropertyError,
-    ValidationError
+    ModelValidationError
 )
 from app.services.light import (
     get_light_list,
@@ -37,7 +37,7 @@ class TestLightService(object):
 
     Test cases for raising `DataIntegrityError` are not included because
     the field validators take effect before the data ever makes it into the
-    the database backend, raising `ValidationError` instead.
+    the database backend, raising `ModelValidationError` instead.
     '''
 
     @classmethod
@@ -119,9 +119,9 @@ class TestLightService(object):
         assert light != None
 
     @with_app_context
-    def test_below_limit_min_length_name_light_creation_raises_validation_error(self):
+    def test_below_limit_min_length_name_light_creation_raises_model_validation_error(self):
         data = dict(name='A'*(MIN_NAME_LENGTH-1), is_powered_on=False)
-        with pytest.raises(ValidationError):
+        with pytest.raises(ModelValidationError):
             create_light(**data)
 
     @with_app_context
@@ -131,9 +131,9 @@ class TestLightService(object):
         assert light != None
 
     @with_app_context
-    def test_above_limit_max_length_name_light_creation_raises_validation_error(self):
+    def test_above_limit_max_length_name_light_creation_raises_model_validation_error(self):
         data = dict(name='A'*(MAX_NAME_LENGTH+1), is_powered_on=True)
-        with pytest.raises(ValidationError):
+        with pytest.raises(ModelValidationError):
             create_light(**data)
 
     @with_app_context
