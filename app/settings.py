@@ -9,8 +9,8 @@ from os.path import abspath, join, dirname, isdir
 
 
 # This version string is for informational purposes only (e.g. show in
-# the web-ui, etc).
-VERSION = '0.1.0'
+# the web-ui, etc). See https://semver.org
+VERSION = '0.2.0'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = abspath(dirname(__file__))
