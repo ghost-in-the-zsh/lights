@@ -66,39 +66,39 @@ class TestLightService(object):
 
     @with_app_context
     def test_get_light_list_filtered_is_ok(self):
-        lights = get_light_list(filters={'id': 2})
+        lights = get_light_list(id=2)
         assert len(lights) == 1
         assert lights[0].id == 2
 
     @with_app_context
     def test_get_light_list_with_bad_filter_raises_invalid_property_error(self):
         with pytest.raises(InvalidPropertyError):
-            get_light_list(filters={'kita': 'Baka'})
+            get_light_list(kita='Baka')
 
     @with_app_context
     def test_get_light_id_is_ok(self, id: int=1):
-        light = get_light(id)
+        light = get_light(id=id)
         assert light.id == id
 
     @with_app_context
     def test_nonexistent_positive_light_id_raises_object_not_found_error(self):
         with pytest.raises(ObjectNotFoundError):
-            get_light(5)
+            get_light(id=5)
 
     @with_app_context
     def test_nonexistent_negative_light_id_raises_object_not_found_error(self):
         with pytest.raises(ObjectNotFoundError):
-            get_light(-1)
+            get_light(id=-1)
 
     @with_app_context
     def test_update_light_is_ok(self, id: int=1, name: Text='Living Room'):
-        light = get_light(id)
+        light = get_light(id=id)
         light.name = name
         light.is_powered_on = False
         update_light(light)
 
         # trust, but verify
-        light = get_light(id)
+        light = get_light(id=id)
         assert light.name == name
         assert light.is_powered_on == False
 
@@ -140,7 +140,7 @@ class TestLightService(object):
     def test_delete_existing_light_is_ok(self):
         delete_light(1)
         with pytest.raises(ObjectNotFoundError):
-            get_light(1)
+            get_light(id=1)
 
     @with_app_context
     def test_delete_non_existent_light_raises_object_not_found_error(self):

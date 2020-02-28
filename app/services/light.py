@@ -14,18 +14,22 @@ from sqlalchemy.exc import (
     InvalidRequestError,
     StatementError
 )
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.exc import (
+    NoResultFound,
+    MultipleResultsFound
+)
 
 from app.common.errors import (
     ObjectNotFoundError,
     DataIntegrityError,
-    InvalidPropertyError
+    InvalidPropertyError,
+    UniqueObjectExpectedError
 )
 from app.models import db
 from app.models.light import Light
 
 
-def get_light_list(filters: Dict=None) -> List[Light]:
+def get_light_list(**filters: Dict) -> List[Light]:
     '''Get all `Light` objects from the database, as a list.
 
     :param filters: A dictionary with model field/value pairs.
@@ -43,19 +47,27 @@ def get_light_list(filters: Dict=None) -> List[Light]:
         raise InvalidPropertyError(f'Filter(s) do(es) not match model field(s): {filters}') from e
 
 
-def get_light(light_id: int) -> Optional[Light]:
-    '''Get the `Light` specified by the given ID.
+def get_light(**filters: Dict) -> Optional[Light]:
+    '''Get the `Light` specified by the given criteria.
 
-    :param light_id: The database ID of the `Light` to search for.
+    :param filters: A dictionary with model field/value pairs.
 
     :returns: A `Light` object.
 
-    :raises ObjectNotFoundError: A `Light` with the given :light_id: was not found.
+    :raises ObjectNotFoundError: A `Light` with the given criteria was not found.
+
+    :raises UniqueObjectExpectedError: The given criteria produced more than one `Light`.
+
+    :raises InvalidPropertyError: One or more filters do not exist as model field(s).
     '''
     try:
-        return Light.query.filter_by(id=light_id).one()
+        return Light.query.filter_by(**filters).one()
     except NoResultFound as e:
-        raise ObjectNotFoundError(f'Light object {light_id} not found.') from e
+        raise ObjectNotFoundError(f'Light not found: {filters}') from e
+    except MultipleResultsFound as e:
+        raise UniqueObjectExpectedError(f'More than one Light found. Use more specific criteria: {filters}') from e
+    except InvalidRequestError as e:
+        raise InvalidPropertyError(f'Light filter(s) and model field(s) mismatch: {filters}') from e
 
 
 def create_light(**data: Dict) -> Optional[Light]:

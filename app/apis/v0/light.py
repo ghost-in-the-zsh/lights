@@ -62,7 +62,7 @@ class LightAPI(FlaskView):
     def get(self, id: int):
         '''Get one `Light` object.'''
         try:
-            light = get_light(id)
+            light = get_light(id=id)
         except ObjectNotFoundError:
             abort(HTTPStatus.NOT_FOUND)
 
@@ -110,7 +110,7 @@ class LightAPI(FlaskView):
         [1] https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT
         '''
         try:
-            light = get_light(id)
+            light = get_light(id=id)
             light.name = request.json.get('name')
             light.is_powered_on = request.json.get('is_powered_on')
             update_light(light)

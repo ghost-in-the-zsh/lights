@@ -52,7 +52,7 @@ class LightView(FlaskView):
     def get(self, id: int):
         '''Get one `Light` object.'''
         try:
-            light = get_light(id)
+            light = get_light(id=id)
             form = LightForm(obj=light)
             return render_template('lights/light_detail.html', form=form)
         except ObjectNotFoundError:

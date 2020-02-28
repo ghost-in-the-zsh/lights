@@ -36,6 +36,16 @@ class DataIntegrityError(BaseError):
     '''
     pass
 
+
+class UniqueObjectExpectedError(BaseError):
+    '''A single unique object was expected, but ended up with several.
+
+    This can happen when the search criteria for finding a single object
+    is too lax, vague, and/or ambiguous, causing the system to return
+    several results in a single query.
+
+    In such a case, the client should either narrow down the search
+    criteria or use a call that explicitly returns a list of objects.
     '''
     pass
 
