@@ -7,12 +7,25 @@ exceptions).
 '''
 
 
-class ObjectNotFoundError(Exception):
+class BaseError(Exception):
+    '''The base error class for application-specific errors.
+
+    This error is not meant to be raised directly. Rather, it's meant to
+    be the foundation of the error class hierarchy in this system.
+
+    Catching this error is directly discouraged in most cases. It's
+    generally recommended that you catch the more specific errors defined
+    below.
+    '''
+    pass
+
+
+class ObjectNotFoundError(BaseError):
     '''The object being searched for was not found.'''
     pass
 
 
-class DataIntegrityError(Exception):
+class DataIntegrityError(BaseError):
     '''The data being used causes integrity issues.
 
     This is generally expected to happen if attempts to add invalid
@@ -27,7 +40,7 @@ class DataIntegrityError(Exception):
     pass
 
 
-class ModelValidationError(Exception):
+class ModelValidationError(BaseError):
     '''The data being processed is rejected by the model as invalid.
 
     Normally, models process data on assignment. When a field receives an
@@ -37,7 +50,7 @@ class ModelValidationError(Exception):
     pass
 
 
-class InvalidPropertyError(Exception):
+class InvalidPropertyError(BaseError):
     '''The property being referenced does not match a field in the model.
 
     This is equivalent to a built-in `AttributeError`, but made into a
