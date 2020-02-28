@@ -120,7 +120,7 @@ class LightAPI(FlaskView):
         except (ValidationError, DataIntegrityError) as e:
             abort(HTTPStatus.BAD_REQUEST, description=repr(e))
         except TypeError as e:
-            abort(HTTPStatus.BAD_REQUEST, description=f'Data must be JSON-formatted.')
+            abort(HTTPStatus.BAD_REQUEST, description='Data must be JSON-formatted.')
 
     @route('/<int:id>', methods=['PATCH'], endpoint='api.v0.light.update')
     def patch(self, id: int):
