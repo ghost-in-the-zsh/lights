@@ -28,7 +28,7 @@ class LightSchema(ModelSchema):
 
     class Meta:
         model = Light
-        exclude = ('_is_powered_on',)   # See above.
+        exclude = ('_is_powered_on',)   # See below.
 
     name = fields.String(
         validate=[
