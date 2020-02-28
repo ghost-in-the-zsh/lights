@@ -34,13 +34,13 @@ def get_light_list(filters: Dict=None) -> List[Light]:
 
     :raises InvalidPropertyError: One or more filters do not match model fields.
     '''
-    if filters:
-        try:
-            return Light.query.filter_by(**filters).all()
-        except InvalidRequestError as e:
-            raise InvalidPropertyError(f'Filter(s) do(es) not match model field(s): {filters}') from e
+    if not filters:
+        return Light.query.all()
 
-    return Light.query.all()
+    try:
+        return Light.query.filter_by(**filters).all()
+    except InvalidRequestError as e:
+        raise InvalidPropertyError(f'Filter(s) do(es) not match model field(s): {filters}') from e
 
 
 def get_light(light_id: int) -> Optional[Light]:
