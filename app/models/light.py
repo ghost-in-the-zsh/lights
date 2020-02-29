@@ -54,6 +54,8 @@ class Light(db.Model):
         unique=True,
         nullable=False
     )
+    # This field must be overriden in the schema for serialization to
+    # present it as a public field, without the `_` prefix.
     _is_powered_on = Column(
         'is_powered_on',
         Boolean,
