@@ -5,12 +5,17 @@ each row. The instance fields are the database table columns.
 '''
 
 from typing import Text, Any
+from datetime import (
+    datetime,
+    timezone
+)
 
 from sqlalchemy import (
     Column,
     Integer,
     String,
     Boolean,
+    DateTime,
     CheckConstraint
 )
 from sqlalchemy.orm import validates
@@ -21,7 +26,10 @@ from app.settings import (
     TRUTHY,
     FALSEY
 )
-from app.models import db
+from app.models import (
+    db,
+    _utils as utils
+)
 from app.common.validators import (
     MinLengthValidator,
     MaxLengthValidator,
@@ -61,6 +69,13 @@ class Light(db.Model):
         Boolean,
         nullable=False
     )
+    _date_created = Column(
+        'date_created',
+        DateTime,
+        unique=False,
+        nullable=False,
+        server_default=utils.utcnow()   # not `datetime.utcnow`; see docs
+    )
 
     def __init__(self, **kwargs):
         super()
@@ -74,6 +89,19 @@ class Light(db.Model):
     @is_powered_on.setter
     def is_powered_on(self, value: Any) -> None:
         self._is_powered_on = _try_to_bool(value)
+
+    @property
+    def date_created(self) -> datetime:
+        # The SQLA database migration is responsible for forcing the
+        # database backend to emit SQL that guarantees the mapped column
+        # is:
+        #
+        #   1. stored in a timezone-unaware format (i.e. a naive `datetime`);
+        #   2. explicitly stored as UTC by the server backend.
+        #
+        # This is where the field's `utcnow` used above on `server_default`
+        # comes in, which allows the `.replace` call below to work safely.
+        return self._date_created.replace(tzinfo=timezone.utc)
 
     @validates('name')
     def _validate_name(self, field_name: Text, field_value: Text) -> Text:

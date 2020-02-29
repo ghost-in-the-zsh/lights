@@ -13,6 +13,10 @@ from typing import (
     Callable,
     Dict
 )
+from datetime import (
+    datetime as dt,
+    timezone as tz
+)
 from http import HTTPStatus
 
 from flask import url_for
@@ -91,7 +95,8 @@ class TestLightGetAPI(object):
                     },
                     'id': id,
                     'name': f'Light-{id}',
-                    'is_powered_on': False
+                    'is_powered_on': False,
+                    'date_created': dt.now(tz.utc).isoformat(timespec='seconds')
                 } for id in range(1, total+1)
             ]
         }
@@ -120,7 +125,8 @@ class TestLightGetAPI(object):
                 },
                 'id': id,
                 'name': f'Light-{id}',
-                'is_powered_on': False
+                'is_powered_on': False,
+                'date_created': dt.now(tz.utc).isoformat(timespec='seconds')
             }
         }
         response = self.client.get(
@@ -208,7 +214,8 @@ class TestLightPostAPI(object):
             'light': {
                 'id': actual['light']['id'],
                 'name': data['name'],
-                'is_powered_on': data['is_powered_on']
+                'is_powered_on': data['is_powered_on'],
+                'date_created': dt.now(tz.utc).isoformat(timespec='seconds')
             }
         }
 
@@ -317,7 +324,8 @@ class TestLightPutAPI(object):
                 },
                 'id': id,
                 'name': name,
-                'is_powered_on': power_state
+                'is_powered_on': power_state,
+                'date_created': dt.now(tz.utc).isoformat(timespec='seconds')
             }
         }
         response = self.client.get(url, content_type=self.mime_type)

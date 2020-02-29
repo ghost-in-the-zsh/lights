@@ -23,6 +23,20 @@ tradeoff. Always.
   {{ form.is_powered_on.label(class_="col-sm-2 col-form-label form-check-label") }}
   {{ form.is_powered_on(class_="form-control form-check-input col-sm-3") }}
 </div>
+<div class="form-group row">
+  {{ form.date_created.label(class_="col-sm-2 col-form-label") }}
+  <!-- FIXME: Would like to render `form.date_created(...)`, but
+              `moment(...)` returns a whole HTML <span> tag that messes
+              up the whole value with "<span ...></span>"
+      `form.date_created(class_="form-control col-sm-10", value=moment(form.date_created.data).format())`
+  -->
+  <span
+    class="form-control col-sm-10"
+    readonly
+    title="{{ form.date_created.data | datetime_delta }}">
+    {{ moment(form.date_created.data).format() }}
+  </span>
+</div>
 <div class="form-group row float-right">
   {{ form.save_button(class_="btn btn-primary mr-1") }}
   {{ form.delete_button(class_="btn btn-danger", formnovalidate=True) }}
@@ -90,4 +104,5 @@ tradeoff. Always.
   }
   // -->
 </script>
+{{ moment.include_moment() }}
 {% endblock %}

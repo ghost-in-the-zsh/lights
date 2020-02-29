@@ -4,6 +4,10 @@
 import pytest
 
 from typing import Callable, Dict, Text
+from datetime import (
+    datetime as dt,
+    timezone as tz
+)
 
 from sqlalchemy.exc import IntegrityError
 
@@ -122,6 +126,12 @@ class TestLightModel(object):
                     is_powered_on=state
                 ))
                 self.session.commit()
+
+    @with_app_context
+    def test_date_created_field_format_matches(self):
+        light = Light.query.filter_by(id=1).one()
+        expected = dt.now(tz.utc).replace(microsecond=0)    # discard usecs; not stored in DB
+        assert light.date_created == expected
 
     @with_app_context
     def test_light_repr_format_matches(self):

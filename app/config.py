@@ -45,6 +45,11 @@ class ProductionConfig:
     # SECURITY WARNING: web form protection against CSRF attacks!
     WTF_CSRF_TIME_LIMIT = CSRF_TOKEN_VALIDITY_SECS
 
+    # Flask-Moment
+    # https://github.com/miguelgrinberg/flask-moment/
+    # https://momentjs.com/docs/#/displaying/format/
+    MOMENT_DEFAULT_FORMAT = 'LLL'
+
 
 class DevelopmentConfig(ProductionConfig):
     # Flask overrides

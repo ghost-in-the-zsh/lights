@@ -32,6 +32,8 @@ from app.common.handlers import (
     http_500_handler,
     http_501_handler
 )
+from app.common.ext import moment
+from app.common.filters import datetime_delta_filter
 from app.debug import toolbar
 from app.models import (
     db as sqla,
@@ -56,6 +58,7 @@ def create_app(config_name: Text) -> Flask:
     migrate.init_app(app, sqla)
     marshmallow.init_app(app)   # must be init'ed *after* the SQLAlchemy ORM
     toolbar.init_app(app)
+    moment.init_app(app)
 
     # register REST API
     prefix = f'/api/v{api.version}/lights'
@@ -85,6 +88,9 @@ def create_app(config_name: Text) -> Flask:
     app.register_error_handler(HTTPStatus.NOT_ACCEPTABLE, http_406_handler)
     app.register_error_handler(HTTPStatus.INTERNAL_SERVER_ERROR, http_500_handler)
     app.register_error_handler(HTTPStatus.NOT_IMPLEMENTED, http_501_handler)
+
+    # add filters
+    app.jinja_env.filters['datetime_delta'] = datetime_delta_filter
 
     return app
 

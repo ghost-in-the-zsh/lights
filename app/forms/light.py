@@ -3,7 +3,8 @@ from wtforms import (
     StringField,
     IntegerField,
     SubmitField,
-    BooleanField
+    BooleanField,
+    DateTimeField
 )
 from wtforms.validators import DataRequired
 
@@ -22,6 +23,11 @@ class LightForm(FlaskForm):
     id = IntegerField('ID')
     name = StringField('Name', validators=[DataRequired()])
     is_powered_on = BooleanField('Powered On?', validators=[DataRequired()])
+    date_created = DateTimeField('Date Added', render_kw={
+        'readonly': True,
+        'data-toggle': 'tooltip',
+        'data-placement': 'top'
+    })
     save_button = SubmitField('Save')
     delete_button = SubmitField('Delete', render_kw={
         # assumes Bootstrap Confirmation and Material Icons are installed
@@ -39,3 +45,20 @@ class LightForm(FlaskForm):
         'data-content': 'This is permanent and cannot be undone!'
     })
     cancel_button = SubmitField('Cancel')
+
+    def populate_obj(self, obj):
+        '''Overrides `FlaskForm.populate_obj` to ignore the `date_created` field.
+
+        The `date_created` field is not meant to be set by clients, but the
+        form automatically tries to set it when it's submitted and the object
+        is being populated, causing an error when the model rejects the
+        assignment. (Recall the field is read-only) This override removes
+        the field from the object's `_fields` dictionary.
+
+        This pass-through implementation is left here as an example of
+        what you would actually need to do if you were using actual HTML
+        <form> tags to submit client data instead of the JavaScript-driven
+        API calls that can pick and choose which data to include.
+        '''
+        # del self._fields['date_created']
+        super().populate_obj(obj)

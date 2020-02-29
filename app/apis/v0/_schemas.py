@@ -28,7 +28,7 @@ class LightSchema(ModelSchema):
 
     class Meta:
         model = Light
-        exclude = ('_is_powered_on',)   # See below.
+        exclude = ('_is_powered_on', '_date_created')   # See below.
 
     name = fields.String(
         validate=[
@@ -45,6 +45,32 @@ class LightSchema(ModelSchema):
     is_powered_on = fields.Boolean(
         truthy=TRUTHY,
         falsey=FALSEY
+    )
+    # The model's private `_date_created` field must be treated as the
+    # `_is_powered_on` field above for the same reasons.
+    #
+    # The `dump_only` option effectively marks this field as "read-only"
+    # and cannot be set during de-serialization... because naming the
+    # parameter `read_only` would've been too obvious.
+    #
+    # `DateTime` objects are stored in the database in naive form, i.e. they
+    # are timezone-unaware without UTC offsets (i.e. `±HH:MM`). Because of
+    # this, the `%z` part of the "%Y-%m-%dT%H:%M:%S%z" `format` is an empty
+    # string, and gets serialized as such in its ISO-8601 format[1].
+    #
+    # This can cause problems for clients because `datetime` objects are
+    # assumed to be in the *local* TZ unless otherwise specified. Since there's
+    # no format string that will add the TZ info and we know they get stored in
+    # UTC, we hard-code a `+HH:MM` offset of `+00:00` to add TZ information
+    # until a better method is found. The serialized format is the same as that
+    # from `.isoformat(timespec='seconds')`[1] and this is what clients should
+    # use.
+    #
+    # [1] https://docs.python.org/3/library/datetime.html
+    date_created = fields.DateTime(
+        attribute='_date_created',
+        format='%Y-%m-%dT%H:%M:%S+00:00',   # See above for hard-coded "+00:00" offset
+        dump_only=True
     )
 
     # allow programmatic API discovery and navigation
