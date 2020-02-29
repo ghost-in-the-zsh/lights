@@ -67,8 +67,8 @@ class LightAPI(FlaskView):
             abort(HTTPStatus.NOT_FOUND)
 
         light_schema = LightSchema()
-        serialized_case = light_schema.dump(light)
-        response = jsonify({'light': serialized_case})
+        serialized_light = light_schema.dump(light)
+        response = jsonify({'light': serialized_light})
         return response, HTTPStatus.OK
 
     @route('/', methods=['POST'], endpoint='api.v0.light.submit_new')
