@@ -78,6 +78,7 @@ Date: Wed, 15 Jan 2020 11:25:38 GMT
 
 {
   "light": {
+    "date_created": "2020-02-29T06:56:45+00:00",
     "id": 1,
     "is_powered_on": false,
     "name": "Living Room"
@@ -124,6 +125,7 @@ Date: Thu, 16 Jan 2020 08:17:26 GMT
           }
         ]
       },
+      "date_created": "2020-02-29T06:56:45+00:00",
       "id": 1,
       "is_powered_on": false,
       "name": "Living Room"
@@ -156,6 +158,7 @@ Date: Thu, 16 Jan 2020 08:20:48 GMT
         }
       ]
     },
+    "date_created": "2020-02-29T06:56:45+00:00",
     "id": 1,
     "is_powered_on": false,
     "name": "Living Room"
@@ -194,6 +197,7 @@ $ curl -k \
                 }
             ]
         },
+        "date_created": "2020-02-29T06:56:45+00:00",
         "id": 1,
         "is_powered_on": false,
         "name": "Living Room"
@@ -231,6 +235,7 @@ $ curl -k \
         }
       ]
     },
+    "date_created": "2020-02-29T06:56:45+00:00",
     "id": 1,
     "is_powered_on": false,
     "name": "Basement"
