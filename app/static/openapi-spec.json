@@ -3,7 +3,7 @@
   "info": {
     "title": "Lights API",
     "description": "This is the ***interactive*** Lights API documentation.",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "contact": {
       "email": "ray.l.rivera@gmail.com"
     }
@@ -285,6 +285,10 @@
           },
           "is_powered_on": {
             "type": "boolean"
+          },
+          "date_created": {
+            "type": "string",
+            "format": "datetime"
           }
         }
       },
