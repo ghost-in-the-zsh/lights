@@ -99,11 +99,11 @@ def create_app(config_name: Text) -> Flask:
 def _on_database_connected(dbapi_connection, connection_record):
     '''Event handler for when a connection to the DB is made.
 
-    The standard built-in SQLite3 DB is used for local development and/or
-    testing only. Unfortunately, foreign key support is *still disabled*
-    by default[1], which causes the DB to ignore defined constraints
-    such as `on {delete | update} cascade`, leaving orphaned child rows
-    and causing data integrity issues, false test failures, etc.
+    The standard built-in SQLite3 DB is used for local testing only.
+    Unfortunately, foreign key support is *still disabled* by default[1],
+    which causes the DB to ignore defined constraints such as
+    `on {update | delete} cascade`, leaving orphaned child rows and causing
+    data integrity issues, false test failures, etc.
 
     This must be enabled *on each connection* to the DB so that it works
     correctly and in the same way the non-SQLite production environment
@@ -121,7 +121,7 @@ def _on_database_connected(dbapi_connection, connection_record):
         4. I'm not aware of a more elegant way to do this (yet?);
 
     On #4, I'm not aware of a way to register an event listener that fires
-    when connecting to a SQLite-backed database *only*. For now, it's an
+    when connecting to an SQLite-backed database *only*. For now, it's an
     all-or-nothing proposition.
 
     This particular project doesn't really benefit from this, but now you
