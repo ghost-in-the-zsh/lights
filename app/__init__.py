@@ -129,27 +129,29 @@ def _on_database_connected(dbapi_connection, connection_record):
 
     [1] "Enabling Foreign Key Support", https://sqlite.org/foreignkeys.html
     '''
-    if 'sqlite' in current_app.config['SQLALCHEMY_DATABASE_URI']:
-        cursor = dbapi_connection.cursor()
-        cursor.execute('PRAGMA foreign_keys = on')
+    if not 'sqlite' in current_app.config['SQLALCHEMY_DATABASE_URI']:
+        return
 
-        # Postgres schemas (in the Postgres sense of the word) can be used
-        # to organize database objects. The problem is that SQLite does
-        # not support these kinds of schemas and Postgres cannot be run
-        # as an in-memory database. (Well, maybe not easily.)
-        #
-        # This workaround takes the in-memory SQLite database and attaches
-        # it as different SQLite schemas (in the SQLite sense) to allow
-        # SQL queries to work in both database engines.
-        #
-        # This workaround only exists to allow local/automated unit tests
-        # to work correctly, as SQLite gets confused otherwise (e.g. a
-        # query for `<schema>.<table>` will fail b/c SQLite cannot find a
-        # database[1] named `<schema>`).
-        #
-        # [1] For SQLite, a database is a schema; for Postgres a database
-        #     *contains* one or more schemas.
-        for pg_schema in DATABASE_SCHEMAS:
-            cursor.execute(f'ATTACH DATABASE ":memory:" AS {pg_schema}')
+    cursor = dbapi_connection.cursor()
+    cursor.execute('PRAGMA foreign_keys = on')
 
-        cursor.close()
+    # Postgres schemas (in the Postgres sense of the word) can be used
+    # to organize database objects. The problem is that SQLite does
+    # not support these kinds of schemas and Postgres cannot be run
+    # as an in-memory database. (Well, maybe not easily.)
+    #
+    # This workaround takes the in-memory SQLite database and attaches
+    # it as different SQLite schemas (in the SQLite sense) to allow
+    # SQL queries to work in both database engines.
+    #
+    # This workaround only exists to allow local/automated unit tests
+    # to work correctly, as SQLite gets confused otherwise (e.g. a
+    # query for `<schema>.<table>` will fail b/c SQLite cannot find a
+    # database[1] named `<schema>`).
+    #
+    # [1] For SQLite, a database is a schema; for Postgres a database
+    #     *contains* one or more schemas.
+    for pg_schema in DATABASE_SCHEMAS:
+        cursor.execute(f'ATTACH DATABASE ":memory:" AS {pg_schema}')
+
+    cursor.close()
