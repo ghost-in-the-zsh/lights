@@ -10,7 +10,7 @@ from app.settings import (
     VERSION,
     INSTANCE_DIR,
     PRIVATE_KEY_LENGTH,
-    CSRF_TOKEN_VALIDITY_SECS,
+    CSRF_TOKEN_TTL_SECS,
     DATABASE_CONFIG
 )
 
@@ -43,7 +43,7 @@ class ProductionConfig:
     # Flask-WTForms
     # https://flask-wtf.readthedocs.io/en/stable/config.html
     # SECURITY WARNING: web form protection against CSRF attacks!
-    WTF_CSRF_TIME_LIMIT = CSRF_TOKEN_VALIDITY_SECS
+    WTF_CSRF_TIME_LIMIT = CSRF_TOKEN_TTL_SECS
 
     # Flask-Moment
     # https://github.com/miguelgrinberg/flask-moment/

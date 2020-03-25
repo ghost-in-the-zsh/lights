@@ -31,6 +31,10 @@ FLASK_ENV = environ.get('FLASK_ENV', 'production')
 # See: app/config.py
 PRIVATE_KEY_LENGTH = 128
 
+# Name length limits for database objects.
+MIN_NAME_LENGTH = 3
+MAX_NAME_LENGTH = 32
+
 # SECURITY WARNING: web forms are protected by CSRF tokens!
 # These tokens are used to protect against CSRF attacks and they
 # are set to expire after the time period below. Since these
@@ -39,17 +43,12 @@ PRIVATE_KEY_LENGTH = 128
 #
 # Expired tokens cause form validation to fail and any updates
 # sent by the users to be rejected.
-CSRF_TOKEN_VALIDITY_SECS = 300  # 300 secs = 5 mins
-
-# Name length limits for database objects.
-MIN_NAME_LENGTH = 3
-MAX_NAME_LENGTH = 32
+CSRF_TOKEN_TTL_SECS = 300  # 300 secs = 5 mins
 
 # Yes, the falsey spelling is ok:
 # https://english.stackexchange.com/questions/109996/is-it-falsy-or-falsey
 TRUTHY = (True, 'True', 'true', 't')
 FALSEY = (False, 'False', 'false', 'f')
-
 
 # Configuration data for using the Postgres database server. Most of the
 # data is stored in environment variables for simplicity. For `docker secrets`
