@@ -53,7 +53,7 @@ def setup_lights(app: Flask) -> None:
         if not engine.dialect.has_table(engine, Light.__table__.name, Light.__table__.schema):
             Light.__table__.create(engine)
 
-        for id in range(1, 3+1):
+        for id in range(1, 4):
             db.session.add(Light(
                 name=f'Light-{id}',
                 is_powered_on=False
