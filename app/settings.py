@@ -56,11 +56,11 @@ FALSEY = (False, 'False', 'false', 'f')
 #
 # NOTE: These data are ignored when using SQLite3 (e.g. testing).
 DATABASE_CONFIG = {
-    'host': environ.get('LIGHTS_HOST', None),
-    'port': environ.get('LIGHTS_PORT', None),
-    'name': environ.get('LIGHTS_DB'  , None),
-    'user': environ.get('LIGHTS_USER', None),
-    'password': environ.get('LIGHTS_PASSWORD', None),
+    'host': environ.get('LIGHTS_DB_HOST', None),
+    'port': environ.get('LIGHTS_DB_PORT', None),
+    'name': environ.get('LIGHTS_DB_NAME', None),
+    'user': environ.get('LIGHTS_DB_USER', None),
+    'password': environ.get('LIGHTS_DB_PASSWORD', None),
     'dialect': 'postgres',
     'driver': 'psycopg2'
 }
