@@ -4,7 +4,8 @@ from app.common.errors import ModelValidationError
 from app.common.validators import (
     MinLengthValidator,
     MaxLengthValidator,
-    ValueTypeValidator
+    ValueTypeValidator,
+    PasswordBreachValidator,
 )
 
 
@@ -154,3 +155,12 @@ class TestValueTypeValidator(object):
         validator = ValueTypeValidator(class_type=int, error_message='bad bad')
         expected  = "<ValueTypeValidator: class_type=<class 'int'> error_message='bad bad'>"
         assert repr(validator) == expected
+
+
+class TestPasswordBreachValidatorUnitTest(object):
+    '''Unit tests for the `PasswordBreachValidator` class.'''
+
+    def test_that_known_breached_password_raises_model_validation_error(self):
+        validator = PasswordBreachValidator()
+        with pytest.raises(ModelValidationError):
+            validator.validate('123456')
