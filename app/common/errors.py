@@ -68,3 +68,23 @@ class InvalidPropertyError(BaseError):
     intented for external clients.
     '''
     pass
+
+
+class InvalidTokenError(BaseError):
+    '''The token (e.g. JWT) failed validation.
+
+    This error wraps the `authlib.jose.errors.JoseError` and its more
+    specialized children (e.g. `BadSignatureError`, `ExpiredTokenError`,
+    etc.)
+    '''
+    pass
+
+
+class InvalidCredentialsError(BaseError):
+    '''Incorrect authentication credentials were provided.
+
+    This error is raised when bad user credentials (e.g. email/password)
+    are provided for login. It primarily wraps errors defined in the
+    `argon2.exceptions` module.
+    '''
+    pass

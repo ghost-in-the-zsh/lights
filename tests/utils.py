@@ -23,6 +23,7 @@ from flask import (
 
 from app.models import db
 from app.models.light import Light
+from app.models.user import User
 
 
 def setup_database(app: Flask) -> None:
@@ -70,6 +71,38 @@ def teardown_lights(app: Flask) -> None:
     '''
     with app.app_context():
         Light.__table__.drop(db.engine)
+
+
+def setup_users(app: Flask) -> None:
+    '''Creates the `User` data for unit tests.
+
+    The table is created if it's not present. This is expected to
+    happen in-between unit tests in order to reset the testing
+    environment data and prevent side-effects from one unit test case
+    from propagating to others and affecting their results.
+    '''
+    with app.app_context():
+        engine = db.engine
+        if not engine.dialect.has_table(engine, User.__table__.name, User.__table__.schema):
+            User.__table__.create(engine)
+
+        for id in range(1, 3):
+            db.session.add(User(
+                name=f'User-{id}',
+                password=f'User-App-Password-{id}'
+            ))
+        db.session.commit()
+
+
+def teardown_users(app: Flask) -> None:
+    '''Destroys the `User` table to reset unit tests.
+
+    The table is destroyed to remove changes that may've been introduced
+    by unit tests and prevent them from propagating and affecting other
+    unit tests.
+    '''
+    with app.app_context():
+        User.__table__.drop(db.engine)
 
 
 def with_app_context(test_method: Callable[..., None]) -> Callable[..., None]:

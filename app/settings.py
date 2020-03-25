@@ -31,10 +31,6 @@ FLASK_ENV = environ.get('FLASK_ENV', 'production')
 # See: app/config.py
 PRIVATE_KEY_LENGTH = 128
 
-# Name length limits for database objects.
-MIN_NAME_LENGTH = 3
-MAX_NAME_LENGTH = 32
-
 # SECURITY WARNING: web forms are protected by CSRF tokens!
 # These tokens are used to protect against CSRF attacks and they
 # are set to expire after the time period below. Since these
@@ -49,6 +45,76 @@ CSRF_TOKEN_TTL_SECS = 300  # 300 secs = 5 mins
 # https://english.stackexchange.com/questions/109996/is-it-falsy-or-falsey
 TRUTHY = (True, 'True', 'true', 't')
 FALSEY = (False, 'False', 'false', 'f')
+
+# Length limits for string-based database columns/objects.
+MIN_NAME_LENGTH = 3
+MAX_NAME_LENGTH = 32
+
+# SECURITY WARNING: Hashes are only as strong as the passwords from which
+# they're derived. Therefore, the minimum length of user passwords must
+# be reasonably long.
+#
+# Useful reference:
+# NIST Special Publication 800-63B: Digital Identity Guidelines
+# https://pages.nist.gov/800-63-3/sp800-63b.html
+MIN_PASSWORD_LENGTH = 16
+MAX_PASSWORD_LENGTH = 64
+
+# SECURITY WARNING: Passwords are hashed using the Argon2 algorithm[1],
+# implemented in the `argon2-cffi` package[2]. Argon2 is able to produce
+# hashes of variable length (up to 2^(32)-1 bytes[2]). In encoded format,
+# an Argon2 hash looks as follows:
+#
+#   $<hash>$v=<version>$m=<memory>,t=<time>,p=<parallelism>$<digest>
+#
+# For example, hashing the word 'password' with the default options:
+#
+#   hash: argon2id
+#   version: 19
+#   memory: 102400 (KiB)
+#   time: 2
+#   parallelism: 8
+#   hash_len: 16    (not part of encoded result)
+#   salt_len: 16    (not part of encoded result)
+#   encoding: utf-8 (not part of encoded result)
+#
+# generates the encoded result below with 77 chars:
+#
+#   $argon2id$v=19$m=102400,t=2,p=8$/fyEiWLtEptoby4N1mWtCQ$U4sZg3akPymER4+XV85t5w
+#
+# The maximum length below was chosen to accomodate this result. If hashes
+# need to be upgraded in the future, and the hash length is affected (not
+# all changes affect hash lengths), then update the length below and let
+# the application automatically upgrade user hashes as they log back in.
+#
+# For more info, see [3] and [4].
+#
+# [1] https://en.wikipedia.org/wiki/Argon2
+# [2] https://pypi.org/project/argon2-cffi/
+# [3] https://password-hashing.net/
+# [4] https://github.com/P-H-C/phc-winner-argon2
+MAX_PASSWORD_HASH_LENGTH = 77
+
+# SECURITY WARNING: The server-side must always control this.
+# There've been some cases where clients have been able to attack servers
+# by changing headers, at least in cases where servers failed to validate
+# the headers themselves. While the library used in this app is not
+# vulnerable to these attacks, it's still worth noting.
+#
+# https://docs.authlib.org/en/latest/specs/rfc7519.html
+# https://en.wikipedia.org/wiki/JSON_Web_Token
+AUTH_JWT_HEADER = {
+    'alg': 'HS256',     # HMAC + SHA-256
+    'typ': 'JWT'
+}
+
+# This app is the token issuer.
+AUTH_JWT_PAYLOAD_ISS = 'Lights'
+
+# SECURITY WARNING: Tokens should be short-lived and NOT have sensitive data!
+# In our context, a token's expiration time should be a few minutes;
+# enough for the user to receive an email and click on the included link.
+AUTH_JWT_PAYLOAD_EXP = 900  # 900 secs = 15 mins
 
 # Configuration data for using the Postgres database server. Most of the
 # data is stored in environment variables for simplicity. For `docker secrets`
