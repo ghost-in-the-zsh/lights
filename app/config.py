@@ -55,6 +55,10 @@ class DevelopmentConfig(ProductionConfig):
     # Flask overrides
     DEBUG = True
     EXPLAIN_TEMPLATE_LOADING = True
+    # Avoid invalidating user tokens due to 'bad signatures' whenever a
+    # code change is made, which causes the dev server to auto-restart
+    # and re-generate a new random key on from the base config.
+    SECRET_KEY = b'dev-key'
 
     # Flask-SQLAlchemy overrides
     SQLALCHEMY_DATABASE_URI = 'postgres+psycopg2://light:devel@localhost:5432/lights'
@@ -70,6 +74,9 @@ class DevelopmentConfig(ProductionConfig):
 class TestingConfig(ProductionConfig):
     # Flask overrides
     TESTING = True
+    # Avoid the performance penalty of getting random bytes for
+    # automated testing.
+    SECRET_KEY = b'test-key'
 
     # Flask-SQLAlchemy overrides
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'  # more explicit than 'sqlite://'
