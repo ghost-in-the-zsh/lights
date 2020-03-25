@@ -3,7 +3,7 @@
 This module is used by the uWSGI server, as specified in the
 uWSGI configuration file.
 
-See: conf/uwsgi.ini
+See: conf/web/uwsgi.ini
 '''
 
 from app import create_app

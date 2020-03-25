@@ -22,7 +22,7 @@ BASE_DIR = abspath(dirname(__file__))
 INSTANCE_DIR = join(dirname(BASE_DIR), 'instance')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# See: conf/uwsgi.ini
+# See: conf/web/uwsgi.ini
 FLASK_ENV = environ.get('FLASK_ENV', 'production')
 
 # SECURITY WARNING: avoid making the key length value too small!
