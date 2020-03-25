@@ -6,6 +6,7 @@ from app.common.validators import (
     MaxLengthValidator,
     ValueTypeValidator,
     PasswordBreachValidator,
+    TextPatternValidator
 )
 
 
@@ -164,3 +165,53 @@ class TestPasswordBreachValidatorUnitTest(object):
         validator = PasswordBreachValidator()
         with pytest.raises(ModelValidationError):
             validator.validate('123456')
+
+
+class TestTextPatternValidator(object):
+    '''Unit tests for the `TextPatternValidator` class.'''
+
+    def test_expected_usage_ctor_is_accepted(self):
+        TextPatternValidator(pattern=r'\w')
+
+    def test_longer_valid_expression_is_accepted(self):
+        TextPatternValidator(pattern=r'^[{charset}]+$'.format(
+            charset=TextPatternValidator.DEFAULT_CHARSET
+        ))
+
+    def test_non_string_pattern_raises_type_error(self):
+        with pytest.raises(TypeError):
+            TextPatternValidator(pattern=None)
+
+    def test_empty_pattern_raises_value_error(self):
+        with pytest.raises(ValueError):
+            TextPatternValidator(pattern='')
+
+    def test_invalid_regexp_pattern_in_ctor_raises_value_error(self):
+        with pytest.raises(ValueError):
+            TextPatternValidator(pattern='\\')
+
+    def test_matching_pattern_is_accepted(self):
+        validator = TextPatternValidator(pattern=r'\d')
+        validator.validate('5')
+
+    def test_non_string_pattern_raises_model_validation_error(self):
+        validator = TextPatternValidator(pattern=r'\d')
+        with pytest.raises(ModelValidationError):
+            validator.validate(5)
+
+    def test_mismatched_value_raises_model_validation_error(self):
+        validator = TextPatternValidator(pattern=r'\d')
+        with pytest.raises(ModelValidationError):
+            validator.validate('a')
+
+    def test_string_error_message_in_ctor_is_accepted(self):
+        TextPatternValidator(pattern='abc', error_message='error string')
+
+    def test_non_string_error_message_in_ctor_raises_type_error(self):
+        with pytest.raises(TypeError):
+            TextPatternValidator(pattern=r'/', error_message=5)
+
+    def test_repr_result_matches(self):
+        validator = TextPatternValidator(pattern='abc', error_message='bad bad')
+        expected  = "<TextPatternValidator: pattern='abc' error_message='bad bad'>"
+        assert repr(validator) == expected

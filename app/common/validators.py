@@ -4,6 +4,7 @@ Validators are used to check user inputs and make sure they follow some
 basic rules before we accept their data and store it in the database.
 '''
 
+import re
 import hashlib
 import logging
 import requests
@@ -174,3 +175,43 @@ class PasswordBreachValidator(_BaseValidator):
 
     def __repr__(self):
         return f'<{self.__class__.__name__}>'
+
+
+class TextPatternValidator(_BaseValidator):
+    '''Validator to verify text patterns using regular expressions.'''
+
+    LOWERCASE_ONLY = 'a-z'
+    UPPERCASE_ONLY = 'A-Z'
+    NUMBERS_ONLY = '0-9'
+    LETTERS_ONLY = LOWERCASE_ONLY + UPPERCASE_ONLY
+    ALPHA_CHARSET = LETTERS_ONLY + NUMBERS_ONLY
+    DEFAULT_CHARSET = r'{charset}\.\-_'.format(charset=ALPHA_CHARSET)
+
+    def __init__(self, *, pattern: Text, error_message: Text=None):
+        if not isinstance(pattern, str):
+            raise TypeError('pattern must be a string')
+
+        if len(pattern) == 0:
+            raise ValueError('pattern must not be empty')
+        if error_message is None or len(error_message) == 0:
+            error_message = self.__class__.__name__ + f'(pattern="{pattern}") rejected data'
+
+        try:
+            self._regexp = re.compile(pattern)
+            self.error_message = error_message
+        except re.error as e:
+            raise ValueError(repr(e)) from e
+
+    def validate(self, value: Any) -> None:
+        try:
+            if not self._regexp.match(value):
+                raise ModelValidationError(self.error_message)
+        except TypeError as e:
+            raise ModelValidationError(self.error_message) from e
+
+    def __repr__(self):
+        return '<{}: pattern=\'{}\' error_message=\'{}\'>'.format(
+            self.__class__.__name__,
+            self._regexp.pattern,
+            self.error_message
+        )
