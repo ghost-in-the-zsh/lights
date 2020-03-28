@@ -9,24 +9,17 @@ rest of the system.
 
 from typing import List, Optional, Dict
 
-from sqlalchemy.exc import (
-    IntegrityError,
-    InvalidRequestError,
-    StatementError
-)
-from sqlalchemy.orm.exc import (
-    NoResultFound,
-    MultipleResultsFound
-)
-
-from app.common.errors import (
-    ObjectNotFoundError,
-    DataIntegrityError,
-    InvalidPropertyError,
-    UniqueObjectExpectedError
-)
 from app.models import db
 from app.models.light import Light
+
+from ._ops import (
+    get_object_list,
+    get_object,
+    create_object,
+    update_object,
+    delete_object_list,
+    delete_object
+)
 
 
 def get_light_list(**filters: Dict) -> List[Light]:
@@ -38,14 +31,8 @@ def get_light_list(**filters: Dict) -> List[Light]:
 
     :raises InvalidPropertyError: One or more filters do not match model fields.
     '''
-    if not filters:
-        return Light.query.all()
-
     _try_remap_fields(filters)
-    try:
-        return Light.query.filter_by(**filters).all()
-    except InvalidRequestError as e:
-        raise InvalidPropertyError(f'Filter(s) do(es) not match model field(s): {filters}') from e
+    return get_object_list(Light, **filters)
 
 
 def get_light(**filters: Dict) -> Optional[Light]:
@@ -62,14 +49,7 @@ def get_light(**filters: Dict) -> Optional[Light]:
     :raises InvalidPropertyError: One or more filters do not exist as model field(s).
     '''
     _try_remap_fields(filters)
-    try:
-        return Light.query.filter_by(**filters).one()
-    except NoResultFound as e:
-        raise ObjectNotFoundError(f'Light not found: {filters}') from e
-    except MultipleResultsFound as e:
-        raise UniqueObjectExpectedError(f'More than one Light found. Use more specific criteria: {filters}') from e
-    except InvalidRequestError as e:
-        raise InvalidPropertyError(f'Light filter(s) and model field(s) mismatch: {filters}') from e
+    return get_object(Light, **filters)
 
 
 def create_light(**data: Dict) -> Optional[Light]:
@@ -83,15 +63,7 @@ def create_light(**data: Dict) -> Optional[Light]:
 
     :raises ModelValidationError: The dictionary data violates validation rules.
     '''
-    light = Light(**data)
-    session = db.session
-    try:
-        session.add(light)
-        session.commit()
-        return light
-    except (IntegrityError, StatementError) as e: # let caller handle `ModelValidationError`
-        session.rollback()
-        raise DataIntegrityError(f'Light creation failed: {data}. {repr(e)}') from e
+    return create_object(Light, **data)
 
 
 def update_light(light: Light) -> None:
@@ -106,13 +78,7 @@ def update_light(light: Light) -> None:
 
     :raises ObjectNotFoundError: The object to be updated does not exist.
     '''
-    session = db.session
-    try:
-        session.add(light)
-        session.commit()
-    except (IntegrityError, StatementError) as e: # let caller handle `ModelValidationError`
-        session.rollback()
-        raise DataIntegrityError(f'Light {light.id} failed to update.') from e
+    update_object(Light, light)
 
 
 def delete_light(light_id: int) -> None:
@@ -120,47 +86,12 @@ def delete_light(light_id: int) -> None:
 
     :param light_id: The database ID of the `Light` to be deleted.
     '''
-    if not _light_exists(light_id):
-        raise ObjectNotFoundError(f'Light object {light_id} not found.')
-
-    session = db.session
-    try:
-        Light.query.filter_by(id=light_id).delete()
-        session.commit()
-    except IntegrityError as e:
-        # This is included for the sake of completeness; the `light` table
-        # has no other defined relations or constraints (e.g. foreign keys),
-        # so deleting a `Light` does not raise exceptions in our case.
-        session.rollback()
-        raise DataIntegrityError(f'Light {light_id} cannot be deleted.') from e
+    delete_object(Light, light_id)
 
 
 def delete_light_list() -> None:
     '''Delete all the `Light` objects from the database.'''
-    # The docs[1] don't list errors raised by this implementation,
-    # so it's probably like `delete_light`'s implementation.
-    # See docs for caveats.
-    #
-    # [1] https://docs.sqlalchemy.org/en/13/orm/query.html#sqlalchemy.orm.query.Query.delete
-    session = db.session
-    try:
-        Light.query.delete(synchronize_session=False)
-        session.commit()
-    except IntegrityError as e:
-        # See notes in `delete_light`
-        session.rollback()
-        raise DataIntegrityError(f'Lights collection could not be deleted') from e
-
-
-def _light_exists(light_id: int) -> bool:
-    '''Return `True` if the `Light` exists. Otherwise `False`.
-
-    This is a less expensive way of checking for its existence, as it only
-    gets the scalar `Light.id` field instead of loading and instantiating a
-    full object just to throw it away.
-    '''
-    session = db.session
-    return session.query(Light.id).filter_by(id=light_id).scalar() is not None
+    delete_object_list(Light)
 
 
 def _try_remap_fields(filters: Dict) -> None:
