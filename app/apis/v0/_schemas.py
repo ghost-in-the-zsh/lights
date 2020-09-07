@@ -4,7 +4,7 @@ This package-private module prevents circular imports when sharing schemas
 across API classes, especially for sub-resources.
 '''
 
-from flask_marshmallow.sqla import ModelSchema
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from flask_marshmallow.fields import (
     URLFor,
     Hyperlinks
@@ -23,7 +23,7 @@ from app.settings import (
 from app.models.light import Light
 
 
-class LightSchema(ModelSchema):
+class LightSchema(SQLAlchemyAutoSchema):
     '''A schema to manage `Light` (de)serialization into/from JSON.'''
 
     class Meta:
