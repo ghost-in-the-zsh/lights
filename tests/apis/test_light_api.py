@@ -40,6 +40,10 @@ from tests.utils import (
 )
 
 
+BASE_URL = f'api.v{current_api.version}.light'
+MIME_TYPE = 'application/json'
+
+
 class TestLightGetAPI(object):
     '''Unit tests for the `GET` methods of the `LightAPI` class.'''
 
@@ -61,8 +65,6 @@ class TestLightGetAPI(object):
 
         self.app = app
         self.client = client
-        self.api_ver = current_api.version
-        self.mime_type = 'application/json'
 
     def teardown_method(self, method: Callable):
         teardown_lights(self.app)
@@ -71,7 +73,7 @@ class TestLightGetAPI(object):
 
     @with_app_context
     def test_light_list_request_is_ok(self):
-        url = url_for(f'api.v{self.api_ver}.light.get_all')
+        url = url_for(f'{BASE_URL}.get_all')
         total = db.session.query(Light).count()
         expected = {
             '_meta': {
@@ -80,7 +82,7 @@ class TestLightGetAPI(object):
                 },
                 'links': [{
                     'rel': 'self',
-                    'href': url_for(f'api.v{self.api_ver}.light.get_all')
+                    'href': url_for(f'{BASE_URL}.get_all')
                 }]
             },
             'lights': [
@@ -89,7 +91,7 @@ class TestLightGetAPI(object):
                         'links': [
                             {
                                 'rel': 'self',
-                                'href': url_for(f'api.v{self.api_ver}.light.detail', id=id)
+                                'href': url_for(f'{BASE_URL}.detail', id=id)
                             }
                         ]
                     },
@@ -102,24 +104,24 @@ class TestLightGetAPI(object):
         }
         response = self.client.get(
             url,
-            headers={'Accept': self.mime_type}
+            headers={'Accept': MIME_TYPE}
         )
         actual = response.json
 
         assert response.status_code == HTTPStatus.OK.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
         assert expected == actual
 
     @with_app_context
     def test_light_request_by_id_is_ok(self, id: int=1):
-        url = url_for(f'api.v{self.api_ver}.light.detail', id=id)
+        url = url_for(f'{BASE_URL}.detail', id=id)
         expected = {
             'light': {
                 '_meta': {
                     'links': [
                         {
                             'rel': 'self',
-                            'href': url_for(f'api.v{self.api_ver}.light.detail', id=id)
+                            'href': url_for(f'{BASE_URL}.detail', id=id)
                         }
                     ]
                 },
@@ -131,35 +133,35 @@ class TestLightGetAPI(object):
         }
         response = self.client.get(
             url,
-            headers={'Accept': self.mime_type}
+            headers={'Accept': MIME_TYPE}
         )
         actual = response.json
 
         assert response.status_code == HTTPStatus.OK.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
         assert expected == actual
 
     @with_app_context
     def test_light_request_by_non_existent_positive_id_is_not_found(self):
-        url = url_for(f'api.v{self.api_ver}.light.detail', id=10)
+        url = url_for(f'{BASE_URL}.detail', id=10)
         response = self.client.get(
             url,
-            headers={'Accept': self.mime_type}
+            headers={'Accept': MIME_TYPE}
         )
 
         assert response.status_code == HTTPStatus.NOT_FOUND.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
 
     @with_app_context
     def test_light_request_by_non_existent_negative_id_is_not_found(self):
-        url = url_for(f'api.v{self.api_ver}.light.detail', id=-5)
+        url = url_for(f'{BASE_URL}.detail', id=-5)
         response = self.client.get(
             url,
-            headers={'Accept': self.mime_type}
+            headers={'Accept': MIME_TYPE}
         )
 
         assert response.status_code == HTTPStatus.NOT_FOUND.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
 
 
 class TestLightPostAPI(object):
@@ -183,8 +185,6 @@ class TestLightPostAPI(object):
 
         self.app = app
         self.client = client
-        self.api_ver = current_api.version
-        self.mime_type = 'application/json'
 
     def teardown_method(self, method: Callable):
         teardown_lights(self.app)
@@ -197,19 +197,19 @@ class TestLightPostAPI(object):
             name='A Valid Name',
             is_powered_on=False     # prevent `bool('False') == True` on the server-side
         )
-        root_url = url_for(f'api.v{self.api_ver}.light.submit_new')
+        root_url = url_for(f'{BASE_URL}.submit_new')
 
         response = self.client.post(
             root_url,
             data=json.dumps(data),
             headers={
-                'Accept': self.mime_type,
-                'Content-Type': self.mime_type
+                'Accept': MIME_TYPE,
+                'Content-Type': MIME_TYPE
             }
         )
 
         actual = response.json
-        self_url = url_for(f'api.v{self.api_ver}.light.detail', id=actual['light']['id'])
+        self_url = url_for(f'{BASE_URL}.detail', id=actual['light']['id'])
         expected = {
             'light': {
                 'id': actual['light']['id'],
@@ -220,7 +220,7 @@ class TestLightPostAPI(object):
         }
 
         assert response.status_code == HTTPStatus.CREATED.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
         assert response.headers['Location'] == self_url
         assert expected == actual
 
@@ -230,18 +230,18 @@ class TestLightPostAPI(object):
             name='A'*(MIN_NAME_LENGTH-1),
             is_powered_on=False
         )
-        root_url = url_for(f'api.v{self.api_ver}.light.submit_new')
+        root_url = url_for(f'{BASE_URL}.submit_new')
         response = self.client.post(
             root_url,
             data=data,
             headers={
-                'Accept': self.mime_type,
-                'Content-Type': self.mime_type
+                'Accept': MIME_TYPE,
+                'Content-Type': MIME_TYPE
             }
         )
 
         assert response.status_code == HTTPStatus.BAD_REQUEST.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
 
     @with_app_context
     def test_request_with_invalid_long_name_is_bad_request(self):
@@ -249,18 +249,18 @@ class TestLightPostAPI(object):
             name='A'*(MAX_NAME_LENGTH+1),
             is_powered_on=False
         )
-        root_url = url_for(f'api.v{self.api_ver}.light.submit_new')
+        root_url = url_for(f'{BASE_URL}.submit_new')
         response = self.client.post(
             root_url,
             data=data,
             headers={
-                'Accept': self.mime_type,
-                'Content-Type': self.mime_type
+                'Accept': MIME_TYPE,
+                'Content-Type': MIME_TYPE
             }
         )
 
         assert response.status_code == HTTPStatus.BAD_REQUEST.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
 
 
 class TestLightPutAPI(object):
@@ -285,7 +285,6 @@ class TestLightPutAPI(object):
         self.app = app
         self.client = client
         self.api_ver = current_api.version
-        self.mime_type = 'application/json'
 
     def teardown_method(self, method: Callable):
         teardown_lights(self.app)
@@ -294,7 +293,7 @@ class TestLightPutAPI(object):
 
     @with_app_context
     def test_put_request_returns_no_content(self, id: int=1, name: str='New Name', power_state: bool=True):
-        root_url = url_for(f'api.v{self.api_ver}.light.replace', id=id)
+        root_url = url_for(f'{BASE_URL}.replace', id=id)
         response = self.client.put(
             root_url,
             data=json.dumps(dict(
@@ -302,23 +301,23 @@ class TestLightPutAPI(object):
                 is_powered_on=power_state
             )),
             headers={
-                'Accept': self.mime_type,
-                'Content-Type': self.mime_type
+                'Accept': MIME_TYPE,
+                'Content-Type': MIME_TYPE
             }
         )
 
         assert response.status_code == HTTPStatus.NO_CONTENT.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
 
         # verify the resource actually changed with a `GET` request
-        url = url_for(f'api.v{self.api_ver}.light.detail', id=id)
+        url = url_for(f'{BASE_URL}.detail', id=id)
         expected = {
             'light': {
                 '_meta': {
                     'links': [
                         {
                             'rel': 'self',
-                            'href': url_for(f'api.v{self.api_ver}.light.detail', id=id)
+                            'href': url_for(f'{BASE_URL}.detail', id=id)
                         }
                     ]
                 },
@@ -328,16 +327,16 @@ class TestLightPutAPI(object):
                 'date_created': dt.now(tz.utc).isoformat(timespec='seconds')
             }
         }
-        response = self.client.get(url, content_type=self.mime_type)
+        response = self.client.get(url, content_type=MIME_TYPE)
         actual = response.json
 
         assert response.status_code == HTTPStatus.OK.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
         assert expected == actual
 
     @with_app_context
     def test_put_request_on_non_existent_id_is_not_found(self, id: int=15):
-        root_url = url_for(f'api.v{self.api_ver}.light.replace', id=id)
+        root_url = url_for(f'{BASE_URL}.replace', id=id)
         response = self.client.put(
             root_url,
             data=dict(
@@ -345,28 +344,28 @@ class TestLightPutAPI(object):
                 is_powered_on=True
             ),
             headers={
-                'Accept': self.mime_type,
-                'Content-Type': self.mime_type
+                'Accept': MIME_TYPE,
+                'Content-Type': MIME_TYPE
             }
         )
 
         assert response.status_code == HTTPStatus.NOT_FOUND.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
 
     @with_app_context
     def test_put_request_with_no_data_is_bad_request(self, id: int=1):
-        root_url = url_for(f'api.v{self.api_ver}.light.replace', id=id)
+        root_url = url_for(f'{BASE_URL}.replace', id=id)
         response = self.client.put(
             root_url,
             data=None,
             headers={
-                'Accept': self.mime_type,
-                'Content-Type': self.mime_type
+                'Accept': MIME_TYPE,
+                'Content-Type': MIME_TYPE
             }
         )
 
         assert response.status_code == HTTPStatus.BAD_REQUEST.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
 
 
 class TestLightPatchAPI(object):
@@ -391,7 +390,6 @@ class TestLightPatchAPI(object):
         self.app = app
         self.client = client
         self.api_ver = current_api.version
-        self.mime_type = 'application/json'
 
     def teardown_method(self, method: Callable):
         teardown_lights(self.app)
@@ -401,28 +399,28 @@ class TestLightPatchAPI(object):
     @with_app_context
     @mark.skip(reason='Standard-compliant implementation and test audit not complete.')
     def test_patch_request_to_update_name_returns_no_content(self, id: int=1, name: str='New Name'):
-        root_url = url_for(f'api.v{self.api_ver}.light.update', id=id)
+        root_url = url_for(f'{BASE_URL}.update', id=id)
         response = self.client.patch(
             root_url,
             data=dict(name=name),
             headers={
-                'Accept': self.mime_type,
-                'Content-Type': self.mime_type
+                'Accept': MIME_TYPE,
+                'Content-Type': MIME_TYPE
             }
         )
 
         assert response.status_code == HTTPStatus.NO_CONTENT.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
 
         # verify the resource actually changed with a `GET` request
-        url = url_for(f'api.v{self.api_ver}.light.detail', id=id)
+        url = url_for(f'{BASE_URL}.detail', id=id)
         expected = {
             'light': {
                 '_meta': {
                     'links': [
                         {
                             'rel': 'self',
-                            'href': url_for(f'api.v{self.api_ver}.light.detail', id=id)
+                            'href': url_for(f'{BASE_URL}.detail', id=id)
                         }
                     ]
                 },
@@ -431,38 +429,38 @@ class TestLightPatchAPI(object):
                 'is_powered_on': False
             }
         }
-        response = self.client.get(url, content_type=self.mime_type)
+        response = self.client.get(url, content_type=MIME_TYPE)
         actual = response.json
 
         assert response.status_code == HTTPStatus.OK.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
         assert expected == actual
 
     @with_app_context
     @mark.skip(reason='Standard-compliant implementation and test audit not complete.')
     def test_patch_request_to_update_power_state_returns_no_content(self, id: int=1, power_state: bool=True):
-        root_url = url_for(f'api.v{self.api_ver}.light.update', id=id)
+        root_url = url_for(f'{BASE_URL}.update', id=id)
         response = self.client.patch(
             root_url,
             data=dict(is_powered_on=power_state),
             headers={
-                'Accept': self.mime_type,
-                'Content-Type': self.mime_type
+                'Accept': MIME_TYPE,
+                'Content-Type': MIME_TYPE
             }
         )
 
         assert response.status_code == HTTPStatus.NO_CONTENT.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
 
         # verify the resource actually changed with a `GET` request
-        url = url_for(f'api.v{self.api_ver}.light.detail', id=id)
+        url = url_for(f'{BASE_URL}.detail', id=id)
         expected = {
             'light': {
                 '_meta': {
                     'links': [
                         {
                             'rel': 'self',
-                            'href': url_for(f'api.v{self.api_ver}.light.detail', id=id)
+                            'href': url_for(f'{BASE_URL}.detail', id=id)
                         }
                     ]
                 },
@@ -471,17 +469,17 @@ class TestLightPatchAPI(object):
                 'is_powered_on': power_state
             }
         }
-        response = self.client.get(url, content_type=self.mime_type)
+        response = self.client.get(url, content_type=MIME_TYPE)
         actual = response.json
 
         assert response.status_code == HTTPStatus.OK.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
         assert expected == actual
 
     @with_app_context
     @mark.skip(reason='Standard-compliant implementation and test audit not complete.')
     def test_patch_request_on_non_existent_id_is_not_found(self, id: int=15):
-        root_url = url_for(f'api.v{self.api_ver}.light.update', id=id)
+        root_url = url_for(f'{BASE_URL}.update', id=id)
         response = self.client.patch(
             root_url,
             data=dict(
@@ -489,29 +487,29 @@ class TestLightPatchAPI(object):
                 is_powered_on=True
             ),
             headers={
-                'Accept': self.mime_type,
-                'Content-Type': self.mime_type
+                'Accept': MIME_TYPE,
+                'Content-Type': MIME_TYPE
             }
         )
 
         assert response.status_code == HTTPStatus.NOT_FOUND.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
 
     @with_app_context
     @mark.skip(reason='Standard-compliant implementation and test audit not complete.')
     def test_patch_request_with_no_data_is_bad_request(self, id: int=1):
-        root_url = url_for(f'api.v{self.api_ver}.light.update', id=id)
+        root_url = url_for(f'{BASE_URL}.update', id=id)
         response = self.client.patch(
             root_url,
             data=dict(),
             headers={
-                'Accept': self.mime_type,
-                'Content-Type': self.mime_type
+                'Accept': MIME_TYPE,
+                'Content-Type': MIME_TYPE
             }
         )
 
         assert response.status_code == HTTPStatus.BAD_REQUEST.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
 
 
 class TestLightDeleteAPI(object):
@@ -535,7 +533,6 @@ class TestLightDeleteAPI(object):
         self.app = app
         self.client = client
         self.api_ver = current_api.version
-        self.mime_type = 'application/json'
 
     def teardown_method(self, method: Callable):
         teardown_lights(self.app)
@@ -544,33 +541,33 @@ class TestLightDeleteAPI(object):
 
     @with_app_context
     def test_delete_collection_returns_no_content(self):
-        root_url = url_for(f'api.v{self.api_ver}.light.delete_all')
+        root_url = url_for(f'{BASE_URL}.delete_all')
         response = self.client.delete(
             root_url,
-            headers={'Accept': self.mime_type}
+            headers={'Accept': MIME_TYPE}
         )
 
         assert response.status_code == HTTPStatus.NO_CONTENT.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
 
     @with_app_context
     def test_delete_single_light_returns_no_content(self):
-        root_url = url_for(f'api.v{self.api_ver}.light.delete', id=1)
+        root_url = url_for(f'{BASE_URL}.delete', id=1)
         response = self.client.delete(
             root_url,
-            headers={'Accept': self.mime_type}
+            headers={'Accept': MIME_TYPE}
         )
 
         assert response.status_code == HTTPStatus.NO_CONTENT.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
 
     @with_app_context
     def test_delete_single_non_existent_light_is_not_found(self):
-        root_url = url_for(f'api.v{self.api_ver}.light.delete', id=10)
+        root_url = url_for(f'{BASE_URL}.delete', id=10)
         response = self.client.delete(
             root_url,
-            headers={'Accept': self.mime_type}
+            headers={'Accept': MIME_TYPE}
         )
 
         assert response.status_code == HTTPStatus.NOT_FOUND.value
-        assert response.content_type == self.mime_type
+        assert response.content_type == MIME_TYPE
