@@ -14,9 +14,13 @@ For more information on why this is needed and/or recommended, see:
 
 # pylint: disable=no-member
 
+from typing import Any
+
 from sqlalchemy.sql import expression
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.types import DateTime
+
+from app.settings import TRUTHY, FALSEY
 
 
 class utcnow(expression.FunctionElement):
@@ -33,3 +37,40 @@ def pg_utcnow(element, compiler, **kw):
 @compiles(utcnow, 'sqlite')
 def sqlite_utcnow(element, compiler, **kw):
     return 'CURRENT_TIMESTAMP'
+
+
+def try_to_bool(value: Any) -> bool:
+    '''Try to convert a truthy or falsey value to a `bool` type.
+
+    :param value: The value to be converted into a `bool` type.
+
+    :returns: A `bool` type converted from the `value` or `None`
+    to cause a `ValidationError`.
+
+    Input data may've been received as a `bool` type from an internal
+    call or as a `str` from a client request. The latter case may come
+    from the `request.form`'s dictionary and is not auto-converted to
+    `bool`. So we must handle this case by checking for `truthy` and
+    `falsey` values we're reasonably willing to accept.
+
+    Here we exclude `None` from `falsey` to raise `ValidationError`s
+    when the data is actually missing; other falseys, such as empty
+    lists/sets/tuples, we don't really care about here; client has a
+    documented API spec to follow, so we're kind of being nice here.
+
+    This function avoids applying the `bool(...)` function in order to
+    prevent issues such as:
+    ```
+        >>> bool('False')
+        True
+    ```
+    This function is intended to process "boolean" data sent by clients
+    as JSON strings as well as the expected internal `bool` types.
+    '''
+    if value in TRUTHY:
+        return True
+
+    if value in FALSEY:
+        return False
+
+    return None

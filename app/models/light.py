@@ -88,7 +88,7 @@ class Light(db.Model):
 
     @is_powered_on.setter
     def is_powered_on(self, value: Any) -> None:
-        self._is_powered_on = _try_to_bool(value)
+        self._is_powered_on = utils.try_to_bool(value)
 
     @property
     def date_created(self) -> datetime:
@@ -140,40 +140,3 @@ class Light(db.Model):
             self.name,
             self.is_powered_on
         )
-
-
-def _try_to_bool(value: Any) -> bool:
-    '''Try to convert a truthy or falsey value to a `bool` type.
-
-    :param value: The value to be converted into a `bool` type.
-
-    :returns: A `bool` type converted from the `value` or `None`
-    to cause a `ValidationError`.
-
-    Input data may've been received as a `bool` type from an internal
-    call or as a `str` from a client request. The latter case may come
-    from the `request.form`'s dictionary and is not auto-converted to
-    `bool`. So we must handle this case by checking for `truthy` and
-    `falsey` values we're reasonably willing to accept.
-
-    Here we exclude `None` from `falsey` to raise `ValidationError`s
-    when the data is actually missing; other falseys, such as empty
-    lists/sets/tuples, we don't really care about here; client has a
-    documented API spec to follow, so we're kind of being nice here.
-
-    This function avoids applying the `bool(...)` function in order to
-    prevent issues such as:
-
-        >>> bool('False')
-        True
-
-    This function is intended to process "boolean" data sent by clients
-    as JSON strings as well as the expected internal `bool` types.
-    '''
-    if value in TRUTHY:
-        return True
-
-    if value in FALSEY:
-        return False
-
-    return None
