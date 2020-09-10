@@ -199,7 +199,7 @@ class User(db.Model):
         or guarantees. DO NOT READ THIS FIELD. If you do, you're doing it
         wrong.
         '''
-        raise AttributeError('This is a write-only property. It cannot be read.')
+        raise AttributeError('Access to `password` field denied. Use `password_hash`.')
 
     @password.setter
     def password(self, plaintext: Text) -> None:
@@ -213,9 +213,12 @@ class User(db.Model):
 
         This method exists because it enables the very natural use-case
         of updating a `User`'s password as follows:
+
         ```
+        # ...
         user.password = ...
         ```
+
         This is especially useful because the `password_hash` field is
         read-only[1] and the only other way to set a password is to
         create a new `User` instance. This implementation addresses this
