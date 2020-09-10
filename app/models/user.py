@@ -4,6 +4,10 @@
 
 from typing import Text, Any, Dict
 from time import time
+from datetime import (
+    datetime,
+    timezone
+)
 
 from flask import current_app as app
 
@@ -12,6 +16,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    DateTime,
     CheckConstraint,
     ForeignKey
 )
@@ -36,6 +41,8 @@ from argon2.exceptions import (
 from app.settings import (
     MIN_NAME_LENGTH,
     MAX_NAME_LENGTH,
+    MIN_EMAIL_LENGTH,
+    MAX_EMAIL_LENGTH,
     MIN_PASSWORD_LENGTH,
     MAX_PASSWORD_LENGTH,
     MAX_PASSWORD_HASH_LENGTH,
@@ -52,9 +59,13 @@ from app.common.validators import (
     MinLengthValidator,
     MaxLengthValidator,
     PasswordBreachValidator,
+    ValueTypeValidator,
     TextPatternValidator
 )
-from app.models import db
+from app.models import (
+    db,
+    _utils as utils
+)
 
 
 class User(db.Model):
@@ -71,6 +82,10 @@ class User(db.Model):
                 charset=TextPatternValidator.DEFAULT_CHARSET
             ))
         ],
+        'email': [
+            MinLengthValidator(min_length=MIN_EMAIL_LENGTH),
+            MaxLengthValidator(max_length=MAX_EMAIL_LENGTH),
+        ],
         '_password_plaintext': [
             # Validation of plaintexts prior to hashing is done to
             # let users know that their crappy passwords are crappy ^-^
@@ -85,6 +100,12 @@ class User(db.Model):
             # are not being hashed correctly.
             MinLengthValidator(min_length=MAX_PASSWORD_HASH_LENGTH),
             MaxLengthValidator(max_length=MAX_PASSWORD_HASH_LENGTH)
+        ],
+        '_is_admin': [
+            ValueTypeValidator(class_type=bool)
+        ],
+        '_is_verified': [
+            ValueTypeValidator(class_type=bool)
         ]
     }
 
@@ -99,11 +120,42 @@ class User(db.Model):
         unique=True,
         nullable=False
     )
+    email = db.Column(
+        db.String(MAX_EMAIL_LENGTH),
+        CheckConstraint(f'length(email) >= {MIN_EMAIL_LENGTH} and length(email) <= {MAX_EMAIL_LENGTH}'),
+        index=True,
+        unique=True,
+        nullable=False
+    )
     _password_hash = db.Column(
         'password_hash',
         db.String(MAX_PASSWORD_HASH_LENGTH),
         CheckConstraint(f'length(password_hash) = {MAX_PASSWORD_HASH_LENGTH}'),
         nullable=False
+    )
+    _date_created = Column(
+        'date_created',
+        DateTime,
+        unique=False,
+        nullable=False,
+        server_default=utils.utcnow()   # not `datetime.utcnow`; see docs
+    )
+    _is_admin = db.Column(
+        # Only admins can affect other user accounts. Non-admins can only
+        # see/edit info for their own account.
+        'is_admin',
+        db.Boolean(),
+        nullable=False,
+        default=False
+    )
+    _is_verified = db.Column(
+        # Accounts are unverified by default. Activation requires
+        # user verification with a token. For simplicity, there's no
+        # functinality to disable/ban verified accounts, etc.
+        'is_verified',
+        db.Boolean(),
+        nullable=False,
+        default=False
     )
 
     def __init__(self, **kwargs: Dict):
@@ -112,7 +164,16 @@ class User(db.Model):
         The following are the *required* entries for the `kwargs` dictionary:
 
         :param name: User's name.
-        :param password: User's plaintext password. This is hashed before storing.
+
+        :param email: User's email address.
+
+        :param password: User's plaintext password. This is hashed before
+        storing.
+
+        :param is_admin: Whether this user has admin privileges or not.
+
+        :param is_verified: Whether this user has used the account
+        verification token.
 
         Most of the time, implementing this method is unnecessary because
         the fields can be auto-assigned when their names match those of the
@@ -123,12 +184,11 @@ class User(db.Model):
         '''
         super().__init__(**kwargs)
 
-        def _set_field(field: Text, value: Any) -> None:
-            if value:
-                setattr(self, field, value)
-
-        _set_field('name', kwargs.get('name', None))
-        _set_field('password', kwargs.get('password', None))
+        self.name = kwargs.get('name', None)
+        self.email = kwargs.get('email', None)
+        self.password = kwargs.get('password', None)
+        self.is_admin = kwargs.get('is_admin', False)
+        self.is_verified = kwargs.get('is_verified', False)
 
     @property
     def password(self) -> Text:
@@ -177,6 +237,35 @@ class User(db.Model):
     @property
     def password_hash(self) -> Text:
         return self._password_hash
+
+    @property
+    def is_admin(self) -> bool:
+        return self._is_admin
+
+    @is_admin.setter
+    def is_admin(self, value: Any) -> None:
+        self._is_admin = utils.try_to_bool(value)
+
+    @property
+    def is_verified(self) -> bool:
+        return self._is_verified
+
+    @is_verified.setter
+    def is_verified(self, value: Any) -> None:
+        self._is_verified = utils.try_to_bool(value)
+
+    @property
+    def date_created(self) -> datetime:
+        # The SQLA database migration is responsible for forcing the
+        # database backend to emit SQL that guarantees the mapped column
+        # is:
+        #
+        #   1. stored in a timezone-unaware format (i.e. a naive `datetime`);
+        #   2. explicitly stored as UTC by the server backend.
+        #
+        # This is where the field's `utcnow` used above on `server_default`
+        # comes in, which allows the `.replace` call below to work safely.
+        return self._date_created.replace(tzinfo=timezone.utc)
 
     def verify_password(self, plaintext: Text) -> None:
         hasher = PasswordHasher()
@@ -247,9 +336,21 @@ class User(db.Model):
     def _validate_name(self, attribute_name: Text, name: Text) -> Text:
         return self._validate(attribute_name, name)
 
+    @validates('email')
+    def _validate_email(self, attribute_name: Text, email: Text) -> Text:
+        return self._validate(attribute_name, email)
+
     @validates('_password_hash')
     def _validate_password_hash(self, attribute_name: Text, password_hash: Text) -> Text:
         return self._validate(attribute_name, password_hash)
+
+    @validates('_is_admin')
+    def _validate_admin(self, attribute_name: Text, attribute_value: Any) -> Any:
+        return self._validate(attribute_name, attribute_value)
+
+    @validates('_is_verified')
+    def _validate_verified(self, attribute_name: Text, attribute_value: Any) -> Any:
+        return self._validate(attribute_name, attribute_value)
 
     def _validate(self, attribute_name: Text, attribute_value: Text) -> Text:
         for validator in User._validators[attribute_name]:

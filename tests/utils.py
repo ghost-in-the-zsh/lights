@@ -89,7 +89,10 @@ def setup_users(app: Flask) -> None:
         for id in range(1, 3):
             db.session.add(User(
                 name=f'User-{id}',
-                password=f'User-App-Password-{id}'
+                email=f'email.address-{id}@example.org',
+                password=f'User-App-Password-{id}',
+                # is_admin=False,
+                # is_verified=False
             ))
         db.session.commit()
 

@@ -49,6 +49,8 @@ FALSEY = (False, 'False', 'false', 'f')
 # Length limits for string-based database columns/objects.
 MIN_NAME_LENGTH = 3
 MAX_NAME_LENGTH = 32
+MIN_EMAIL_LENGTH = 10  # arbitrary minimum; should include domain length
+MAX_EMAIL_LENGTH = 48  # allow for very long names/addresses
 
 # SECURITY WARNING: Hashes are only as strong as the passwords from which
 # they're derived. Therefore, the minimum length of user passwords must

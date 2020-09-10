@@ -34,6 +34,8 @@ from tests.utils import (
 )
 
 
+#
+DEFAULT_EMAIL = 'me@localhost'
 # If you get sudden failures, then this password was likely/somehow found
 # in a known breach. Just change it to something else that allows the
 # tests to pass.
@@ -127,35 +129,38 @@ class TestUserService(object):
 
     @with_app_context
     def test_create_user_is_ok(self, name: Text='User-99'):
-        data = dict(name=name, password=DEFAULT_PASSWORD)
+        data = dict(name=name, email=DEFAULT_EMAIL, password=DEFAULT_PASSWORD)
         user = create_user(**data)
 
         assert user != None
         assert user.id != None and user.id > 0
         assert user.name == name
         assert user.password_hash is not None
+        assert user.date_created is not None
+        assert user.is_admin is False
+        assert user.is_verified is False
 
     @with_app_context
     def test_at_limit_min_length_user_name_creation_is_ok(self):
-        data = dict(name='A'*MIN_NAME_LENGTH, password=DEFAULT_PASSWORD)
+        data = dict(name='A'*MIN_NAME_LENGTH, email=DEFAULT_EMAIL, password=DEFAULT_PASSWORD)
         user = create_user(**data)
         assert user != None
 
     @with_app_context
     def test_below_limit_min_length_name_user_creation_raises_model_validation_error(self):
-        data = dict(name='A'*(MIN_NAME_LENGTH-1), password=DEFAULT_PASSWORD)
+        data = dict(name='A'*(MIN_NAME_LENGTH-1), email=DEFAULT_EMAIL, password=DEFAULT_PASSWORD)
         with pytest.raises(ModelValidationError):
             create_user(**data)
 
     @with_app_context
     def test_at_limit_max_length_name_user_name_creation_is_ok(self):
-        data = dict(name='A'*MAX_NAME_LENGTH, password=DEFAULT_PASSWORD)
+        data = dict(name='A'*MAX_NAME_LENGTH, email=DEFAULT_EMAIL, password=DEFAULT_PASSWORD)
         user = create_user(**data)
         assert user != None
 
     @with_app_context
     def test_above_limit_max_length_name_user_creation_raises_model_validation_error(self):
-        data = dict(name='A'*(MAX_NAME_LENGTH+1), password=DEFAULT_PASSWORD)
+        data = dict(name='A'*(MAX_NAME_LENGTH+1), email=DEFAULT_EMAIL, password=DEFAULT_PASSWORD)
         with pytest.raises(ModelValidationError):
             create_user(**data)
 

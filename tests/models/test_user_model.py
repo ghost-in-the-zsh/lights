@@ -9,6 +9,10 @@ from string import (
     punctuation
 )
 from time import time
+from datetime import (
+    datetime as dt,
+    timezone as tz
+)
 
 from authlib.jose import jwt
 from argon2 import PasswordHasher
@@ -17,6 +21,8 @@ from app import create_app
 from app.settings import (
     MIN_NAME_LENGTH,
     MAX_NAME_LENGTH,
+    MIN_EMAIL_LENGTH,
+    MAX_EMAIL_LENGTH,
     MIN_PASSWORD_LENGTH,
     MAX_PASSWORD_LENGTH,
     MAX_PASSWORD_HASH_LENGTH,
@@ -24,6 +30,7 @@ from app.settings import (
     AUTH_JWT_PAYLOAD_ISS,
     AUTH_JWT_PAYLOAD_EXP
 )
+from app.models import db
 from app.models.user import User
 from app.common.validators import PasswordBreachValidator
 from app.common.errors import (
@@ -40,6 +47,10 @@ from tests.utils import (
 )
 
 
+#
+DEFAULT_NAME = 'username'
+#
+DEFAULT_EMAIL = 'me@localhost'
 # If you get sudden failures, then this password was likely/somehow found
 # in a known breach. Just change it to something else that allows the
 # tests to pass.
@@ -66,34 +77,29 @@ class TestUserModelValidatorUnitTest(object):
         app = self.__class__.app
         setup_users(app)
         self.app = app
+        self.session = db.session
 
     def teardown_method(self, method: Callable):
         teardown_users(self.app)
         del self.app
-
-    @with_app_context
-    def test_new_user_from_default_ctor_passes(self):
-        # This test case is needed b/c the model has a custom `__init__`
-        # method implementation, but we want to make sure it can still
-        # be used just like any other model without one.
-        user = User()
-
-        assert user.id is None
-        assert user.name is None
-        # assert user.email is None
-        assert user.password_hash is None
+        del self.session
 
     @with_app_context
     def test_existing_user_values_match_expected(self):
         user = User.query.filter_by(id=1).one()
         assert user.name == 'User-1'
+        assert user.email == 'email.address-1@example.org'
         assert user.password_hash is not None
         assert len(user.password_hash) == MAX_PASSWORD_HASH_LENGTH
+        assert user.date_created is not None
+        assert user.is_admin is False
+        assert user.is_verified is False
 
     @with_app_context
     def test_valid_user_passes_validation_rules(self):
         user = User(**dict(
             name='example_name',
+            email='user@localhost.lan',
             password=DEFAULT_PASSWORD
         ))
         assert user.name == 'example_name'
@@ -121,6 +127,27 @@ class TestUserModelValidatorUnitTest(object):
                 name='Invalid Name with Spaces',
                 password=DEFAULT_PASSWORD
             ))
+
+    @with_app_context
+    def test_invalid_short_name_raises_model_validation_error_on_assignment(self):
+        user = User.query.filter_by(id=1).one()
+        with pytest.raises(ModelValidationError):
+            user.name = 'a' * (MIN_NAME_LENGTH-1)
+
+    @with_app_context
+    def test_invalid_long_name_raises_model_validation_error_on_assignment(self):
+        user = User.query.filter_by(id=1).one()
+        with pytest.raises(ModelValidationError):
+            user.name = 'a' * (MAX_NAME_LENGTH+1)
+
+    @with_app_context
+    def test_valid_email_passes_validation_rules(self):
+        user = User(**dict(
+            name=DEFAULT_NAME,
+            email='user@localhost',
+            password=DEFAULT_PASSWORD
+        ))
+        assert user.email == 'user@localhost'
 
     @with_app_context
     def test_readonly_password_hash_update_raises_attribute_error(self):
@@ -185,16 +212,82 @@ class TestUserModelValidatorUnitTest(object):
             assert user.password is not None
 
     @with_app_context
-    def test_invalid_short_name_raises_model_validation_error_on_assignment(self):
+    def test_valid_is_admin_change_passes_rules(self):
         user = User.query.filter_by(id=1).one()
-        with pytest.raises(ModelValidationError):
-            user.name = 'a' * (MIN_NAME_LENGTH-1)
+        user.is_admin = True
 
     @with_app_context
-    def test_invalid_long_name_raises_model_validation_error_on_assignment(self):
-        user = User.query.filter_by(id=1).one()
+    def test_user_admin_state_truthy_values_pass(self):
+        for index, state in enumerate((True, 'True', 'true', 't')):
+            self.session.add(User(**dict(
+                name=f'{DEFAULT_NAME}-{index}',
+                email=f'{DEFAULT_EMAIL}-{index}',
+                password=DEFAULT_PASSWORD,
+                is_admin=state
+            )))
+            self.session.commit()
+
+    @with_app_context
+    def test_user_admin_state_falsey_values_pass(self):
+        for index, state in enumerate((False, 'False', 'false', 'f')):
+            self.session.add(User(**dict(
+                name=f'{DEFAULT_NAME}-{index}',
+                email=f'{DEFAULT_EMAIL}-{index}',
+                password=DEFAULT_PASSWORD,
+                is_admin=state
+            )))
+            self.session.commit()
+
+    @with_app_context
+    def test_user_admin_state_unexpected_value_raises_model_validation_error(self):
         with pytest.raises(ModelValidationError):
-            user.name = 'a' * (MAX_NAME_LENGTH+1)
+            for index, state in enumerate(('T', '1', 'Yes', 'yes', 'Y', 'y', 'F', '0', 'No', 'no', 'N', 'n', None)):
+                self.session.add(User(**dict(
+                    name=f'{DEFAULT_NAME}-{index}',
+                    email=f'{DEFAULT_EMAIL}-{index}',
+                    password=DEFAULT_PASSWORD,
+                    is_admin=state
+                )))
+                self.session.commit()
+
+    @with_app_context
+    def test_valid_is_verified_change_passes_rules(self):
+        user = User.query.filter_by(id=1).one()
+        user.is_verified = True
+
+    @with_app_context
+    def test_user_verified_state_truthy_values_pass(self):
+        for index, state in enumerate((True, 'True', 'true', 't')):
+            self.session.add(User(**dict(
+                name=f'{DEFAULT_NAME}-{index}',
+                email=f'{DEFAULT_EMAIL}-{index}',
+                password=DEFAULT_PASSWORD,
+                is_verified=state
+            )))
+            self.session.commit()
+
+    @with_app_context
+    def test_user_verified_state_falsey_values_pass(self):
+        for index, state in enumerate((False, 'False', 'false', 'f')):
+            self.session.add(User(**dict(
+                name=f'{DEFAULT_NAME}-{index}',
+                email=f'{DEFAULT_EMAIL}-{index}',
+                password=DEFAULT_PASSWORD,
+                is_verified=state
+            )))
+            self.session.commit()
+
+    @with_app_context
+    def test_user_verified_state_unexpected_value_raises_model_validation_error(self):
+        with pytest.raises(ModelValidationError):
+            for index, state in enumerate(('T', '1', 'Yes', 'yes', 'Y', 'y', 'F', '0', 'No', 'no', 'N', 'n', None)):
+                self.session.add(User(**dict(
+                    name=f'{DEFAULT_NAME}-{index}',
+                    email=f'{DEFAULT_EMAIL}-{index}',
+                    password=DEFAULT_PASSWORD,
+                    is_verified=state
+                )))
+                self.session.commit()
 
     @with_app_context
     def test_valid_token_generation_passes(self):
@@ -280,3 +373,17 @@ class TestUserModelValidatorUnitTest(object):
 
         with pytest.raises(InvalidTokenError):
             User.from_token(auth_token)
+
+    @with_app_context
+    def test_date_created_field_format_matches(self):
+        user = User.query.filter_by(id=1).one()
+        expected = dt.now(tz.utc).replace(microsecond=0)    # discard usecs; not stored in DB
+        assert user.date_created == expected
+
+    @with_app_context
+    def test_user_repr_format_matches(self):
+        user = User.query.filter_by(id=1).one()
+        actual = repr(user)
+        expected = f"<User: id={user.id} name='{user.name}'>"
+
+        assert expected == actual
