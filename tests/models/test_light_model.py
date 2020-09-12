@@ -54,50 +54,45 @@ class TestLightModel(object):
 
     @with_app_context
     def test_light_creation_passes(self):
-        Light(
+        light = Light(
             name='Bedroom',
             is_powered_on=True
         )
+        assert light.name == 'Bedroom'
+        assert light.is_powered_on == True
 
     @with_app_context
     def test_light_creation_without_data_raises_model_validation_error(self):
         with pytest.raises(ModelValidationError):
-            self.session.add(Light())
-            self.session.commit()
+            Light()
 
     @with_app_context
     def test_light_creation_without_name_raises_model_validation_error(self):
         with pytest.raises(ModelValidationError):
-            self.session.add(Light(is_powered_on=True))
-            self.session.commit()
+            Light(is_powered_on=True)
 
     @with_app_context
     def test_light_creation_without_power_state_raises_model_validation_error(self):
         with pytest.raises(ModelValidationError):
-            self.session.add(Light(name='Light-00'))
-            self.session.commit()
+            Light(name='Light-00')
 
     @with_app_context
     def test_light_name_below_min_length_raises_model_validation_error(self):
-        light = Light.query.filter_by(id=1).one()
         with pytest.raises(ModelValidationError):
-            light.name = 'a' * (MIN_NAME_LENGTH-1)
+            Light(name='a'*(MIN_NAME_LENGTH-1), is_powered_on=True)
 
     @with_app_context
     def test_light_name_at_min_length_passes_validation(self):
-        light = Light.query.filter_by(id=1).one()
-        light.name = 'a' * MIN_NAME_LENGTH
+        Light(name='a'*MIN_NAME_LENGTH, is_powered_on=True)
 
     @with_app_context
     def test_light_name_above_max_length_raises_model_validation_error(self):
-        light = Light.query.filter_by(id=1).one()
         with pytest.raises(ModelValidationError):
-            light.name = 'a' * (MAX_NAME_LENGTH+1)
+            Light(name='a'*(MAX_NAME_LENGTH+1), is_powered_on=True)
 
     @with_app_context
     def test_light_name_at_max_length_passes_validation(self):
-        light = Light.query.filter_by(id=1).one()
-        light.name = 'a' * MAX_NAME_LENGTH
+        Light(name='a'*MAX_NAME_LENGTH, is_powered_on=True)
 
     @with_app_context
     def test_light_power_state_truthy_values_pass(self):
@@ -131,6 +126,7 @@ class TestLightModel(object):
     def test_date_created_field_format_matches(self):
         light = Light.query.filter_by(id=1).one()
         expected = dt.now(tz.utc).replace(microsecond=0)    # discard usecs; not stored in DB
+
         assert light.date_created == expected
 
     @with_app_context
