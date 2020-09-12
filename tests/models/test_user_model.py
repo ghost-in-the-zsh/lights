@@ -105,14 +105,14 @@ class TestUserModelValidatorUnitTest(object):
         assert user.name == 'example_name'
         assert user.password_hash is not None
 
-    def test_invalid_short_name_raises_validation_error(self):
+    def test_invalid_short_name_raises_model_validation_error(self):
         with pytest.raises(ModelValidationError):
             User(**dict(
                 name='a'*(MIN_NAME_LENGTH-1),
                 password=DEFAULT_PASSWORD
             ))
 
-    def test_invalid_long_name_raises_validation_error(self):
+    def test_invalid_long_name_raises_model_validation_error(self):
         with pytest.raises(ModelValidationError):
             User(**dict(
                 name='a'*(MAX_NAME_LENGTH+1),
@@ -120,7 +120,7 @@ class TestUserModelValidatorUnitTest(object):
             ))
 
     @with_app_context
-    def test_invalid_name_with_spaces_raises_validation_error(self):
+    def test_invalid_name_with_spaces_raises_model_validation_error(self):
         # This error should be raised by the `TextPatternValidator`
         with pytest.raises(ModelValidationError):
             User(**dict(
@@ -181,15 +181,15 @@ class TestUserModelValidatorUnitTest(object):
         )
 
     @with_app_context
-    def test_setting_breached_password_raises_validation_error(self, id=1):
+    def test_setting_breached_password_raises_model_validation_error(self, id=1):
         # This test case must be handled in a special way to prevent
         # *false positives*.
         #
         # To trigger the `PasswordBreachValidator`, we need a short crap
         # password that's *known* to have been compromised, but doing this
-        # will cause the length validators first.
+        # will trigger the length validators first.
         #
-        # Since this could lead to the *correct exception* being raised
+        # Since this would lead to the *correct exception* being raised
         # for the *wrong reason* (and in this case it does, because we're
         # under the minimum length) we remove the password length
         # validators.
