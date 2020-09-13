@@ -61,9 +61,10 @@ def create_app(config_name: Text) -> Flask:
     moment.init_app(app)
 
     # register REST API
-    prefix = f'/api/v{api.version}/lights'
+    prefix = f'/api/v{api.version}'
     view_options = dict(trailing_slash=False, method_dashified=True)
-    api.LightAPI.register(app, route_prefix=prefix, route_base='/', **view_options)
+    api.LightAPI.register(app, route_prefix=prefix, route_base='/lights', **view_options)
+    api.UserAPI.register(app, route_prefix=prefix, route_base='/users', **view_options)
 
     # register GUI frontend
     HomeView.register(app, route_prefix='/', route_base='/', **view_options)

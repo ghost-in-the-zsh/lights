@@ -3,3 +3,4 @@
 version = 0
 
 from .light import LightAPI
+from .user import UserAPI
