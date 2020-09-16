@@ -1,4 +1,5 @@
 '''Light model unit tests module.'''
+
 # pylint: disable=no-member
 
 import pytest
