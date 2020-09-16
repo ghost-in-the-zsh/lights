@@ -310,6 +310,28 @@ class User(db.Model):
         ).decode('utf-8')
 
     @staticmethod
+    def verify_token(token: Text) -> None:
+        '''Verify an account activation token received from a client.
+
+        :param token: A JWT presumably sent by this system for account confirmation.
+        :raises InvalidTokenError: The token received failed validation (e.g. expired).
+        :raises DataIntegrityError: The database backend rejected the update.
+
+        The token string must be decoded and validated. If validation is
+        successful, then the user account becomes enabled.
+        '''
+        try:
+            user = User.from_token(token)
+            user._is_verified = True
+            db.session.add(user)
+            db.session.commit()
+        except InvalidTokenError as e:
+            raise e
+        except IntegrityError as e:
+            db.session.rollback()
+            raise DataIntegrityError(f'Could not enable User {user.id}.') from e
+
+    @staticmethod
     def from_token(token: Text):    # type: User
         '''Load a `User` from the given JWT.
 

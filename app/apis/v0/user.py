@@ -45,10 +45,12 @@ from flask_classful import (
     route
 )
 
+from app.models.user import User
 from app.common.errors import (
     ObjectNotFoundError,
     DataIntegrityError,
-    ModelValidationError
+    ModelValidationError,
+    InvalidTokenError
 )
 from app.services.user import (
     get_user_list,
@@ -104,7 +106,10 @@ class UserAPI(FlaskView):
     @route('/verify', methods=['POST'], endpoint='api.v0.user.verify')
     def verify(self, token: Text):
         '''Verify a new account with a verification token.'''
-        abort(HTTPStatus.NOT_IMPLEMENTED)
+        try:
+            User.verify_token(token)
+        except (DataIntegrityError, InvalidTokenError) as e:
+            abort(HTTPStatus.BAD_REQUEST, repr(e))
 
     @route('/myself', methods=['GET'], endpoint='api.v0.user.see_myself')
     def see_myself(self, token: Text):
