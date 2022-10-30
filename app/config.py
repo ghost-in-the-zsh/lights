@@ -57,7 +57,7 @@ class DevelopmentConfig(ProductionConfig):
     EXPLAIN_TEMPLATE_LOADING = True
 
     # Flask-SQLAlchemy overrides
-    SQLALCHEMY_DATABASE_URI = 'postgres+psycopg2://light:devel@localhost:5432/lights'
+    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://light:devel@localhost:5434/lights'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
     # Flask-DebugToolbar overrides

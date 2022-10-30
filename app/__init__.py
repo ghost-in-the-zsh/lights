@@ -75,7 +75,7 @@ def create_app(config_name: Text) -> Flask:
         prefix,
         f'/static/openapi-spec.json',
         config={'app_name': 'Lights'},
-        blueprint_name='gui.home.apidocs'
+        blueprint_name='apidocs'
     )
     app.register_blueprint(apibp, url_prefix=prefix)
 

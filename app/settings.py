@@ -10,7 +10,7 @@ from os.path import abspath, join, dirname, isdir
 
 # This version string is for informational purposes only (e.g. show in
 # the web-ui, etc). See https://semver.org
-VERSION = '0.2.1'
+VERSION = '0.2.2'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = abspath(dirname(__file__))
@@ -62,7 +62,7 @@ DATABASE_CONFIG = {
     'name': environ.get('LIGHTS_DB'  , None),
     'user': environ.get('LIGHTS_USER', None),
     'password': environ.get('LIGHTS_PASSWORD', None),
-    'dialect': 'postgres',
+    'dialect': 'postgresql',
     'driver': 'psycopg2'
 }
 
