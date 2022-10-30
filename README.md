@@ -401,7 +401,7 @@ postgres@pc:~$ exit
 Create a virtual environment, install the Python packages, export some variables, and apply the database migrations:
 
 ```bash
-$ sudo apt-get install libpq5 libpq-dev
+$ sudo apt-get install libpq5 libpq-dev  # optional (to build from source)
 $ mkvirtualenv -p python3 lights
 $ python3 -m pip install --upgrade pip
 $ python3 -m pip install -r requirements.txt
