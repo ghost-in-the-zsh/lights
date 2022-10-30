@@ -13,13 +13,10 @@ precautions for resetting their environments in-between unit tests.
 
 # pylint: disable=no-member
 
-from typing import Text, Callable, Any
+from typing import Callable, Any
 from functools import wraps
 
-from flask import (
-    url_for,
-    Flask
-)
+from flask import Flask
 from sqlalchemy import inspect
 
 from app.models import db
@@ -54,9 +51,9 @@ def setup_lights(app: Flask) -> None:
         if not inspect(engine).has_table(Light.__table__.name, Light.__table__.schema):
             Light.__table__.create(engine)
 
-        for id in range(1, 3+1):
+        for obj_id in range(1, 3+1):
             db.session.add(Light(
-                name=f'Light-{id}',
+                name=f'Light-{obj_id}',
                 is_powered_on=False
             ))
         db.session.commit()

@@ -1,3 +1,7 @@
+'''Model validator unit tests module.'''
+
+# pylint: disable=missing-function-docstring
+
 import pytest
 
 from app.common.errors import ModelValidationError
@@ -8,7 +12,7 @@ from app.common.validators import (
 )
 
 
-class TestMinLengthValidator(object):
+class TestMinLengthValidator:
     '''Unit tests for `MinLengthValidator` class.'''
 
     def test_zero_string_length_in_ctor_is_accepted(self):

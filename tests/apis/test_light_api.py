@@ -6,13 +6,12 @@ introspection.
 '''
 
 # pylint: disable=no-member
+# pylint: disable=missing-function-docstring
+# pylint: disable=attribute-defined-outside-init
 
 import json
 
-from typing import (
-    Callable,
-    Dict
-)
+from typing import Callable
 from datetime import (
     datetime as dt,
     timezone as tz
@@ -40,7 +39,7 @@ from tests.utils import (
 )
 
 
-class TestLightGetAPI(object):
+class TestLightGetAPI:
     '''Unit tests for the `GET` methods of the `LightAPI` class.'''
 
     @classmethod
@@ -54,7 +53,7 @@ class TestLightGetAPI(object):
         teardown_database(cls.app)
         del cls.app
 
-    def setup_method(self, method: Callable):
+    def setup_method(self, _method: Callable):
         app = self.__class__.app
         client = app.test_client()
         setup_lights(app)
@@ -64,7 +63,7 @@ class TestLightGetAPI(object):
         self.api_ver = current_api.version
         self.mime_type = 'application/json'
 
-    def teardown_method(self, method: Callable):
+    def teardown_method(self, _method: Callable):
         teardown_lights(self.app)
         del self.client
         del self.app
@@ -111,20 +110,20 @@ class TestLightGetAPI(object):
         assert expected == actual
 
     @with_app_context
-    def test_light_request_by_id_is_ok(self, id: int=1):
-        url = url_for(f'api.v{self.api_ver}.light.detail', id=id)
+    def test_light_request_by_id_is_ok(self, obj_id: int=1):
+        url = url_for(f'api.v{self.api_ver}.light.detail', id=obj_id)
         expected = {
             'light': {
                 '_meta': {
                     'links': [
                         {
                             'rel': 'self',
-                            'href': url_for(f'api.v{self.api_ver}.light.detail', id=id)
+                            'href': url_for(f'api.v{self.api_ver}.light.detail', id=obj_id)
                         }
                     ]
                 },
-                'id': id,
-                'name': f'Light-{id}',
+                'id': obj_id,
+                'name': f'Light-{obj_id}',
                 'is_powered_on': False,
                 'date_created': dt.now(tz.utc).isoformat(timespec='seconds')
             }
@@ -162,7 +161,7 @@ class TestLightGetAPI(object):
         assert response.content_type == self.mime_type
 
 
-class TestLightPostAPI(object):
+class TestLightPostAPI:
     '''Unit tests for the `POST` methods of the `LightAPI` class.'''
 
     @classmethod
@@ -176,7 +175,7 @@ class TestLightPostAPI(object):
         teardown_database(cls.app)
         del cls.app
 
-    def setup_method(self, method: Callable):
+    def setup_method(self, _method: Callable):
         app = self.__class__.app
         client = app.test_client()
         setup_lights(app)
@@ -186,7 +185,7 @@ class TestLightPostAPI(object):
         self.api_ver = current_api.version
         self.mime_type = 'application/json'
 
-    def teardown_method(self, method: Callable):
+    def teardown_method(self, _method: Callable):
         teardown_lights(self.app)
         del self.client
         del self.app
@@ -263,7 +262,7 @@ class TestLightPostAPI(object):
         assert response.content_type == self.mime_type
 
 
-class TestLightPutAPI(object):
+class TestLightPutAPI:
     '''Unit tests for the `PUT` methods of the `LightAPI` class.'''
 
     @classmethod
@@ -277,7 +276,7 @@ class TestLightPutAPI(object):
         teardown_database(cls.app)
         del cls.app
 
-    def setup_method(self, method: Callable):
+    def setup_method(self, _method: Callable):
         app = self.__class__.app
         client = app.test_client()
         setup_lights(app)
@@ -287,14 +286,14 @@ class TestLightPutAPI(object):
         self.api_ver = current_api.version
         self.mime_type = 'application/json'
 
-    def teardown_method(self, method: Callable):
+    def teardown_method(self, _method: Callable):
         teardown_lights(self.app)
         del self.client
         del self.app
 
     @with_app_context
-    def test_put_request_returns_no_content(self, id: int=1, name: str='New Name', power_state: bool=True):
-        root_url = url_for(f'api.v{self.api_ver}.light.replace', id=id)
+    def test_put_request_returns_no_content(self, obj_id: int=1, name: str='New Name', power_state: bool=True):
+        root_url = url_for(f'api.v{self.api_ver}.light.replace', id=obj_id)
         response = self.client.put(
             root_url,
             data=json.dumps(dict(
@@ -311,18 +310,18 @@ class TestLightPutAPI(object):
         assert response.content_type == self.mime_type
 
         # verify the resource actually changed with a `GET` request
-        url = url_for(f'api.v{self.api_ver}.light.detail', id=id)
+        url = url_for(f'api.v{self.api_ver}.light.detail', id=obj_id)
         expected = {
             'light': {
                 '_meta': {
                     'links': [
                         {
                             'rel': 'self',
-                            'href': url_for(f'api.v{self.api_ver}.light.detail', id=id)
+                            'href': url_for(f'api.v{self.api_ver}.light.detail', id=obj_id)
                         }
                     ]
                 },
-                'id': id,
+                'id': obj_id,
                 'name': name,
                 'is_powered_on': power_state,
                 'date_created': dt.now(tz.utc).isoformat(timespec='seconds')
@@ -336,8 +335,8 @@ class TestLightPutAPI(object):
         assert expected == actual
 
     @with_app_context
-    def test_put_request_on_non_existent_id_is_not_found(self, id: int=15):
-        root_url = url_for(f'api.v{self.api_ver}.light.replace', id=id)
+    def test_put_request_on_non_existent_id_is_not_found(self, obj_id: int=15):
+        root_url = url_for(f'api.v{self.api_ver}.light.replace', id=obj_id)
         response = self.client.put(
             root_url,
             data=dict(
@@ -354,8 +353,8 @@ class TestLightPutAPI(object):
         assert response.content_type == self.mime_type
 
     @with_app_context
-    def test_put_request_with_no_data_is_bad_request(self, id: int=1):
-        root_url = url_for(f'api.v{self.api_ver}.light.replace', id=id)
+    def test_put_request_with_no_data_is_bad_request(self, obj_id: int=1):
+        root_url = url_for(f'api.v{self.api_ver}.light.replace', id=obj_id)
         response = self.client.put(
             root_url,
             data=None,
@@ -369,7 +368,7 @@ class TestLightPutAPI(object):
         assert response.content_type == self.mime_type
 
 
-class TestLightPatchAPI(object):
+class TestLightPatchAPI:
     '''Unit tests for the `PATCH` methods of the `LightAPI` class.'''
 
     @classmethod
@@ -383,7 +382,7 @@ class TestLightPatchAPI(object):
         teardown_database(cls.app)
         del cls.app
 
-    def setup_method(self, method: Callable):
+    def setup_method(self, _method: Callable):
         app = self.__class__.app
         client = app.test_client()
         setup_lights(app)
@@ -393,15 +392,15 @@ class TestLightPatchAPI(object):
         self.api_ver = current_api.version
         self.mime_type = 'application/json'
 
-    def teardown_method(self, method: Callable):
+    def teardown_method(self, _method: Callable):
         teardown_lights(self.app)
         del self.client
         del self.app
 
     @with_app_context
     @mark.skip(reason='Standard-compliant implementation and test audit not complete.')
-    def test_patch_request_to_update_name_returns_no_content(self, id: int=1, name: str='New Name'):
-        root_url = url_for(f'api.v{self.api_ver}.light.update', id=id)
+    def test_patch_request_to_update_name_returns_no_content(self, obj_id: int=1, name: str='New Name'):
+        root_url = url_for(f'api.v{self.api_ver}.light.update', id=obj_id)
         response = self.client.patch(
             root_url,
             data=dict(name=name),
@@ -415,18 +414,18 @@ class TestLightPatchAPI(object):
         assert response.content_type == self.mime_type
 
         # verify the resource actually changed with a `GET` request
-        url = url_for(f'api.v{self.api_ver}.light.detail', id=id)
+        url = url_for(f'api.v{self.api_ver}.light.detail', id=obj_id)
         expected = {
             'light': {
                 '_meta': {
                     'links': [
                         {
                             'rel': 'self',
-                            'href': url_for(f'api.v{self.api_ver}.light.detail', id=id)
+                            'href': url_for(f'api.v{self.api_ver}.light.detail', id=obj_id)
                         }
                     ]
                 },
-                'id': id,
+                'id': obj_id,
                 'name': name,
                 'is_powered_on': False
             }
@@ -440,8 +439,8 @@ class TestLightPatchAPI(object):
 
     @with_app_context
     @mark.skip(reason='Standard-compliant implementation and test audit not complete.')
-    def test_patch_request_to_update_power_state_returns_no_content(self, id: int=1, power_state: bool=True):
-        root_url = url_for(f'api.v{self.api_ver}.light.update', id=id)
+    def test_patch_request_to_update_power_state_returns_no_content(self, obj_id: int=1, power_state: bool=True):
+        root_url = url_for(f'api.v{self.api_ver}.light.update', id=obj_id)
         response = self.client.patch(
             root_url,
             data=dict(is_powered_on=power_state),
@@ -455,19 +454,19 @@ class TestLightPatchAPI(object):
         assert response.content_type == self.mime_type
 
         # verify the resource actually changed with a `GET` request
-        url = url_for(f'api.v{self.api_ver}.light.detail', id=id)
+        url = url_for(f'api.v{self.api_ver}.light.detail', id=obj_id)
         expected = {
             'light': {
                 '_meta': {
                     'links': [
                         {
                             'rel': 'self',
-                            'href': url_for(f'api.v{self.api_ver}.light.detail', id=id)
+                            'href': url_for(f'api.v{self.api_ver}.light.detail', id=obj_id)
                         }
                     ]
                 },
-                'id': id,
-                'name': f'Light-{id}',
+                'id': obj_id,
+                'name': f'Light-{obj_id}',
                 'is_powered_on': power_state
             }
         }
@@ -480,8 +479,8 @@ class TestLightPatchAPI(object):
 
     @with_app_context
     @mark.skip(reason='Standard-compliant implementation and test audit not complete.')
-    def test_patch_request_on_non_existent_id_is_not_found(self, id: int=15):
-        root_url = url_for(f'api.v{self.api_ver}.light.update', id=id)
+    def test_patch_request_on_non_existent_id_is_not_found(self, obj_id: int=15):
+        root_url = url_for(f'api.v{self.api_ver}.light.update', id=obj_id)
         response = self.client.patch(
             root_url,
             data=dict(
@@ -499,8 +498,8 @@ class TestLightPatchAPI(object):
 
     @with_app_context
     @mark.skip(reason='Standard-compliant implementation and test audit not complete.')
-    def test_patch_request_with_no_data_is_bad_request(self, id: int=1):
-        root_url = url_for(f'api.v{self.api_ver}.light.update', id=id)
+    def test_patch_request_with_no_data_is_bad_request(self, obj_id: int=1):
+        root_url = url_for(f'api.v{self.api_ver}.light.update', id=obj_id)
         response = self.client.patch(
             root_url,
             data=dict(),
@@ -514,7 +513,7 @@ class TestLightPatchAPI(object):
         assert response.content_type == self.mime_type
 
 
-class TestLightDeleteAPI(object):
+class TestLightDeleteAPI:
     '''Unit tests for the `DELETE` methods of the `LightAPI` class.'''
 
     @classmethod
@@ -527,7 +526,7 @@ class TestLightDeleteAPI(object):
     def teardown_class(cls):
         teardown_database(cls.app)
 
-    def setup_method(self, method: Callable):
+    def setup_method(self, _method: Callable):
         app = self.__class__.app
         client = app.test_client()
         setup_lights(app)
@@ -537,7 +536,7 @@ class TestLightDeleteAPI(object):
         self.api_ver = current_api.version
         self.mime_type = 'application/json'
 
-    def teardown_method(self, method: Callable):
+    def teardown_method(self, _method: Callable):
         teardown_lights(self.app)
         del self.app
         del self.client

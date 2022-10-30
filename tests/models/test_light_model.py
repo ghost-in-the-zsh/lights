@@ -1,15 +1,15 @@
 '''Light model unit tests module.'''
 # pylint: disable=no-member
+# pylint: disable=missing-function-docstring
+# pylint: disable=missing-class-docstring
 
-import pytest
-
-from typing import Callable, Dict, Text
+from typing import Callable
 from datetime import (
     datetime as dt,
     timezone as tz
 )
 
-from sqlalchemy.exc import IntegrityError
+import pytest
 
 from app import create_app
 from app.settings import (
@@ -29,7 +29,7 @@ from tests.utils import (
 )
 
 
-class TestLightModel(object):
+class TestLightModel:
 
     @classmethod
     def setup_class(cls):
@@ -41,13 +41,13 @@ class TestLightModel(object):
     def teardown_class(cls):
         teardown_database(cls.app)
 
-    def setup_method(self, method: Callable):
+    def setup_method(self, _method: Callable):
         app = self.__class__.app
         setup_lights(app)
         self.app = app
-        self.session = db.session
+        self.session = db.session   # pylint: disable=attribute-defined-outside-init
 
-    def teardown_method(self, method: Callable):
+    def teardown_method(self, _method: Callable):
         teardown_lights(self.app)
         del self.app
         del self.session
@@ -119,8 +119,9 @@ class TestLightModel(object):
 
     @with_app_context
     def test_light_power_state_unexpected_value_raises_model_validation_error(self):
+        values = ('T', '1', 'Yes', 'yes', 'Y', 'y', 'F', '0', 'No', 'no', 'N', 'n', None)
         with pytest.raises(ModelValidationError):
-            for index, state in enumerate(('T', '1', 'Yes', 'yes', 'Y', 'y', 'F', '0', 'No', 'no', 'N', 'n', None)):
+            for index, state in enumerate(values):
                 self.session.add(Light(
                     name=f'Name-{index}',   # make names unique to avoid PK violations
                     is_powered_on=state

@@ -1,8 +1,10 @@
+'''Light service unit tests module.'''
 # pylint: disable=no-member
+# pylint: disable=missing-function-docstring
+
+from typing import Callable, Text
 
 import pytest
-
-from typing import Callable, Dict, Text
 
 from app import create_app
 from app.settings import (
@@ -33,7 +35,7 @@ from tests.utils import (
 )
 
 
-class TestLightService(object):
+class TestLightService:
     '''Unit tests for `services.light` functions.
 
     Test cases for raising `DataIntegrityError` are not included because
@@ -51,12 +53,12 @@ class TestLightService(object):
     def teardown_class(cls):
         teardown_database(cls.app)
 
-    def setup_method(self, method: Callable):
+    def setup_method(self, _method: Callable):
         app = self.__class__.app
         setup_lights(app)
         self.app = app
 
-    def teardown_method(self, method: Callable):
+    def teardown_method(self, _method: Callable):
         teardown_lights(self.app)
         del self.app
 
@@ -77,9 +79,9 @@ class TestLightService(object):
             get_light_list(kita='Baka')
 
     @with_app_context
-    def test_get_light_id_is_ok(self, id: int=1):
-        light = get_light(id=id)
-        assert light.id == id
+    def test_get_light_id_is_ok(self, obj_id: int=1):
+        light = get_light(id=obj_id)
+        assert light.id == obj_id
 
     @with_app_context
     def test_nonexistent_positive_light_id_raises_object_not_found_error(self):
@@ -103,32 +105,32 @@ class TestLightService(object):
             get_light(is_powered_on=False)
 
     @with_app_context
-    def test_update_light_is_ok(self, id: int=1, name: Text='Living Room'):
-        light = get_light(id=id)
+    def test_update_light_is_ok(self, obj_id: int=1, name: Text='Living Room'):
+        light = get_light(id=obj_id)
         light.name = name
         light.is_powered_on = False
         update_light(light)
 
         # trust, but verify
-        light = get_light(id=id)
+        light = get_light(id=obj_id)
         assert light.name == name
-        assert light.is_powered_on == False
+        assert light.is_powered_on is False
 
     @with_app_context
     def test_create_light_is_ok(self, name: Text='Restroom'):
         data = dict(name=name, is_powered_on=True)
         light = create_light(**data)
 
-        assert light != None
-        assert light.id != None and light.id > 0
+        assert light is not None
+        assert light.id is not None and light.id > 0
         assert light.name == name
-        assert light.is_powered_on == True
+        assert light.is_powered_on is True
 
     @with_app_context
     def test_at_limit_min_length_light_name_creation_is_ok(self):
         data = dict(name='A'*MIN_NAME_LENGTH, is_powered_on=False)
         light = create_light(**data)
-        assert light != None
+        assert light is not None
 
     @with_app_context
     def test_below_limit_min_length_name_light_creation_raises_model_validation_error(self):
@@ -140,7 +142,7 @@ class TestLightService(object):
     def test_at_limit_max_length_name_light_name_creation_is_ok(self):
         data = dict(name='A'*MAX_NAME_LENGTH, is_powered_on=True)
         light = create_light(**data)
-        assert light != None
+        assert light is not None
 
     @with_app_context
     def test_above_limit_max_length_name_light_creation_raises_model_validation_error(self):
