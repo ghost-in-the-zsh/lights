@@ -398,7 +398,7 @@ postgres=$ \q
 postgres@pc:~$ exit
 ```
 
-Create a virtual environment, install the Python packages, export some variables, and apply the database migrations:
+Create a virtual environment, install the Python packages, and export some variables:
 
 ```bash
 $ sudo apt-get install libpq5 libpq-dev  # optional (to build from source)
@@ -424,7 +424,7 @@ export LIGHTS_USER=light
 export LIGHTS_PASSWORD=devel
 ```
 
-Source the above file with `source instance/env.sh` and run the application:
+Source the above file with `source instance/env.sh`, apply database migrations, and run the application:
 
 ```bash
 $ flask db upgrade
