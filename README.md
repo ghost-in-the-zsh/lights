@@ -377,3 +377,99 @@ Removing image lights-proxy:latest
 ```
 
 Remove the `-v` option to preserve volumes and avoid losing data.
+
+
+## Local Dev Setup
+
+Install PostgreSQL, switch to its account with `sudo -i -u postgres`, and set up the database:
+
+```bash
+postgres@pc:~$ psql
+postgres=$ create role light with password 'devel' login;
+postgres=$ create database lights with owner light;
+postgres=$ grant all privileges on database lights to light;
+postgres=$ \l
+List of databases
+Name       |  Owner   | Encoding |   Collate   |    Ctype    |   Access privileges
+-----------+----------+----------+-------------+-------------+-----------------------
+lights     | light    | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =Tc/light            +
+           |          |          |             |             | light=CTc/light
+postgres=$ \q
+postgres@pc:~$ exit
+```
+
+Create a virtual environment, install the Python packages, export some variables, and apply the database migrations:
+
+```bash
+$ sudo apt-get install libpq5 libpq-dev
+$ mkvirtualenv -p python3 lights
+$ python3 -m pip install --upgrade pip
+$ python3 -m pip install -r requirements.txt
+```
+
+Create `instance/.flaskenv` with the following content:
+
+```bash
+FLASK_APP=app:create_app('development')
+FLASK_ENV=development
+```
+
+And `instance/env.sh` with this content:
+
+```bash
+export LIGHTS_HOST=localhost
+export LIGHTS_PORT=5434     # default port is 5432; yours might be different, depending on your setup
+export LIGHTS_DB=lights
+export LIGHTS_USER=light
+export LIGHTS_PASSWORD=devel
+```
+
+Source the above file with `source instance/env.sh` and run the application:
+
+```bash
+$ flask db upgrade
+$ flask run
+Serving Flask app "app:create_app('development')" (lazy loading)
+* Environment: development
+* Debug mode: on
+* Running on http://127.0.0.1:5000 (Press CTRL+C to quit)
+* Restarting with stat
+* Debugger is active!
+* Debugger PIN: 364-001-171
+```
+
+Other helpful commands you can use:
+
+```bash
+$ invoke -l
+Available tasks:
+
+app.setup         (Re-)Build and launch the whole system.
+app.teardown      Stop and destroy the whole system and (optionally) its data.
+report.coverage   Show a report of unit test coverage.
+test.all          Run all available unit tests.
+test.apis         Run the set of unit tests, but only for the APIs.
+test.models       Run the set of unit tests, but only for data models.
+test.services     Run the set of unit tests, but only for the services layer.
+test.validators   Run the set of unit tests, but only for data validators.
+```
+
+For example, to run the full test suite, against an in-memory SQLite3 database, use:
+
+```
+$ invoke test.all
+============================= test session starts ==============================
+platform linux -- Python 3.10.7, pytest-7.2.0, pluggy-1.0.0 -- /home/ray/.virtualenvs/lights/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/ray/Projects/lights
+collecting ... collected 79 items
+
+tests/test_validators.py::TestMinLengthValidator::test_zero_string_length_in_ctor_is_accepted PASSED [  1%]
+tests/test_validators.py::TestMinLengthValidator::test_negative_string_length_in_ctor_raises_value_error PASSED [  2%]
+[...]
+tests/services/test_light_service.py::TestLightService::test_delete_existing_light_is_ok PASSED [ 97%]
+tests/services/test_light_service.py::TestLightService::test_delete_non_existent_light_raises_object_not_found_error PASSED [ 98%]
+tests/services/test_light_service.py::TestLightService::test_delete_collection_is_ok PASSED [100%]
+
+================== 75 passed, 4 skipped, 3 warnings in 0.74s ===================
+```
