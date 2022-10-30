@@ -83,8 +83,8 @@ class LightAPI(FlaskView):
             light = create_light(**request.json)
         except (DataIntegrityError, ModelValidationError) as e:
             abort(HTTPStatus.BAD_REQUEST, description=repr(e))
-        except TypeError as e:
-            abort(HTTPStatus.BAD_REQUEST, description=f'Data must be JSON-formatted.')
+        except TypeError:
+            abort(HTTPStatus.BAD_REQUEST, description='Data must be JSON-formatted.')
 
         light_url = url_for('api.v0.light.detail', id=light.id)
         light_schema = LightSchema(exclude=('_meta',))    # _meta.link goes in header
@@ -119,7 +119,7 @@ class LightAPI(FlaskView):
             abort(HTTPStatus.NOT_FOUND)
         except (ModelValidationError, DataIntegrityError) as e:
             abort(HTTPStatus.BAD_REQUEST, description=repr(e))
-        except TypeError as e:
+        except TypeError:
             abort(HTTPStatus.BAD_REQUEST, description='Data must be JSON-formatted.')
 
     @route('/<int:id>', methods=['PATCH'], endpoint='api.v0.light.update')
