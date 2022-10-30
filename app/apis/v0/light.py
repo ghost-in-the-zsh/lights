@@ -86,7 +86,7 @@ class LightAPI(FlaskView):
         except TypeError:
             abort(HTTPStatus.BAD_REQUEST, description='Data must be JSON-formatted.')
 
-        light_url = url_for('api.v0.light.detail', id=light.id)
+        light_url = url_for('api.v0.light.detail', id=light.id, _external=True)
         light_schema = LightSchema(exclude=('_meta',))    # _meta.link goes in header
         light_json = light_schema.dump(light)
         response = jsonify({'light': light_json})
